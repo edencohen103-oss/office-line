@@ -168,7 +168,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v9</div>
+  <div class="ver">Office Line v10</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -282,7 +282,7 @@ const SCENARIOS = [
   { id:"denied", who:"sarah", caller:"Office", initial:"O", title:"Office · not approved",
     desc:"Came back denied — you fight for the client",
     first:(n)=>`${n}, hey. So... I got the answer back on that application. You're not gonna love it.`,
-    brief:(n)=>`The application ${n} sent earlier came back not approved as submitted. Start firm: it's underwriting's call, not yours. If he makes real arguments, find one path forward (for example a resubmission with something extra), mention its condition once, and let him go handle it.` },
+    brief:(n)=>`The application ${n} sent earlier came back not approved as submitted. Start firm: it's underwriting's call, not yours. Push back two or three times, each time with a different reason, never repeating yourself. Once he has pushed a few times with real reasons (the client really needs it, they're serious, it's urgent), COMPROMISE: stop saying it's denied and give him a concrete plan, specific and practical, in your own words. For example: have the client send their two most recent pay stubs or proof of income, a copy of the signed agreement and a few photos of the job; you'll resubmit it today as a reconsideration and ask underwriting for a manual review; if they still won't approve it now, the file can stay open and be re-run in a few weeks, so the client can wait rather than lose it. Give the steps one or two at a time, let him react, and confirm what he'll send you. Once you've moved to the plan, don't go back to "it's denied".` },
   { id:"schedule", who:"sarah", caller:"Office", initial:"O", title:"Office · calendar is full",
     desc:"Next week is packed — you squeeze them in",
     first:(n)=>`${n}, quick one, don't promise that client any dates. Next week is completely slammed.`,
@@ -493,7 +493,7 @@ const PAGES = {
       <div class="group plain"><button class="row danger" id="newDeal"><span class="lbl">Start the day over</span></button></div>`;
     openPage("The day", html, () => {
       $("subBody").querySelectorAll("[data-day]").forEach(b => b.onclick = () => { dayStep = +b.dataset.day; pick = DAY[dayStep]; store.set("ol_pick", pick); store.set("ol_day7", dayStep); goHome(); });
-      $("newDeal").onclick = () => { caseFile = []; store.set("ol_case7", []); dayStep = 0; pick = DAY[0]; store.set("ol_day7", 0); store.set("ol_pick", pick); goHome(); };
+      $("newDeal").onclick = () => { caseFile = []; store.set("ol_case7", []); store.set("ol_prev_call", null); dayStep = 0; pick = DAY[0]; store.set("ol_day7", 0); store.set("ol_pick", pick); goHome(); };
     });
   },
 };
@@ -641,6 +641,7 @@ async function prepare(){
 $("armBtn").onclick = async () => {
   if (!(await prepare())) return;
   if (dayStep <= 0) { caseFile = []; store.set("ol_case7", []); }
+  if (dayStep === 0) store.set("ol_prev_call", null);
   show("armed");
   $("armedTxt").textContent = `The phone will be called in ${inWords(delay)}. Don't lock the screen and don't return to the home screen.`;
   clearTimeout(timer);
@@ -701,8 +702,19 @@ $("acceptBtn").onclick = async () => {
   };
   paint(); clearInterval(tick); tick = setInterval(paint, 500);
   const n = name();
-  const history = (dayStep > 0 && sel.who !== "client" && DAY[dayStep] === sel.id) ? caseBlock(n) : "";
-  const first = sel.first(n);
+  const dayHistory = (dayStep > 0 && sel.who !== "client" && DAY[dayStep] === sel.id) ? caseBlock(n) : "";
+  const prev = store.get("ol_prev_call", null);
+  const redial = prev && prev.id === sel.id && Date.now() - prev.at < 45 * 60e3 && prev.lines && prev.lines.length;
+  const history = redial
+    ? dayHistory + `
+
+# This is a CALLBACK. You just spoke with ${n} about this a few minutes ago and the call ended. Here is that call:
+${prev.lines.join("\n")}
+
+Continue EXACTLY from where that call left off. Do NOT repeat your opening news or anything you already said in it. If you had already started compromising or agreed on next steps, keep moving forward from there. Open with a short line that fits ("okay, so where were we", "I checked one more thing"), then carry on.`
+    : dayHistory;
+  const REDIAL = { sarah:`${n}, it's Sarah. Calling you back.`, dave:`${n}, Dave again. Okay, where were we?`, client:`Hi ${n}, it's Mark again, sorry, we got cut off.` };
+  const first = redial ? REDIAL[sel.who] : sel.first(n);
   current = { speaker: SPEAKER[sel.who], title: SHORT[sel.id].t, lines: [] };
   try {
     conv = await Conversation.startSession({
@@ -784,6 +796,12 @@ $("endBtn").onclick = () => endCall(true);
 /* Save what was said so the next call continues from it */
 function storeCurrent(manual){
   const c = current; current = null;
+  if (c && c.lines.length && sel) {
+    const prev = store.get("ol_prev_call", null);
+    // A redial of the same scenario keeps growing the same thread
+    const lines = (prev && prev.id === sel.id && Date.now() - prev.at < 45 * 60e3) ? prev.lines.concat(["(call ended, then called back)"], c.lines) : c.lines;
+    store.set("ol_prev_call", { id: sel.id, at: Date.now(), lines: lines.slice(-60) });
+  }
   if (!c || !c.lines.length || dayStep < 0 || DAY[dayStep] !== sel?.id) return;
   c.lines.push(manual ? `(${name()} hung up here)` : "(call ended here)");
   caseFile.push(c); caseFile = caseFile.slice(-6); store.set("ol_case7", caseFile); store.set("ol_case_at", Date.now());
