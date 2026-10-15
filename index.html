@@ -141,13 +141,13 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
     <button class="row" data-page="contact"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 2c-3 0-9 1.5-9 4.5V21h18v-2.5c0-3-6-4.5-9-4.5z"/></svg></span><span class="lbl">Contact</span><span class="val" id="contactVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
     <button class="row" data-page="ringtone"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11c0-3.1-1.6-5.6-4.5-6.3V4a1.5 1.5 0 00-3 0v.7C7.6 5.4 6 7.9 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></span><span class="lbl">Ringtone</span><span class="val" id="ringVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
     <button class="row" data-page="answer"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2zm0 3v13h10V5H7z"/></svg></span><span class="lbl">Answer mode</span><span class="val" id="answerVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
-    <button class="row" data-page="story"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l4 4 4-4H6a7 7 0 112.05 4.95l-1.42 1.42A9 9 0 1013 3zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8H12z"/></svg></span><span class="lbl">Story</span><span class="val" id="storyVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="story"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l4 4 4-4H6a7 7 0 112.05 4.95l-1.42 1.42A9 9 0 1013 3zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8H12z"/></svg></span><span class="lbl">The day</span><span class="val" id="storyVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
   </div>
 
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v6</div>
+  <div class="ver">Office Line v7</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -293,8 +293,19 @@ const CLIENT = (n) => `You are Mark Reynolds, a homeowner in California. ${n} so
 
 
 const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install." };
+SCENARIOS.unshift(
+  { id:"prev_intake", who:"sarah",
+    first:(n)=>`Hey ${n}, it's Sarah. Quick update on that client from this morning. It came back in the system... they didn't get approved.`,
+    brief:(n)=>`Two things on this call. First, the update you opened with: the client ${n} saw earlier today did not get approved. Don't invent a name, address or amount for them; if ${n} asks why, keep it general (underwriting said no as submitted) and say there's not much you can do on that one right now. React naturally to what he says about it. Second, once that's covered, ask about the client he's with now: he'll give you some background (who they are, what they want done, the address, the situation). Take what he says, confirm the key details briefly as if typing them in, ask anything important he left out, and ask once for photos of the job. Don't promise anything about the new client yet.` },
+  { id:"budget", who:"sarah",
+    first:(n)=>`${n}, it's Sarah again. So I put the new one in... and there's no budget left in that area right now.`,
+    brief:(n)=>`You're calling about the client ${n} is with now, the one he gave you details for on the last call (use those details; don't invent new ones). The program budget for that area is used up for now, so it can't go through as is. When ${n} argues, push back a little, each time with a different, specific reason (the area's allocation is spent, others are already waiting, it resets later). After he's argued a bit, ask him: "Is this something urgent for them?" Listen to his answer. Then soften and say you'll try again: you'll resubmit it and push for it, no promises, and you'll let him know. Don't say you'll call back to end the call; keep the line open by asking what else he needs.` }
+);
+const DAY = ["prev_intake","budget","client"];
 const BY_ID = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
 const SHORT = {
+  prev_intake: { t:"Last client + new one", d:"Earlier client not approved, then your background" },
+  budget:   { t:"No budget in area", d:"You argue, she asks if it's urgent, tries again" },
   intake:   { t:"New application",  d:"Wants app #, address, photos" },
   denied:   { t:"Not approved",     d:"You fight to get it reviewed" },
   schedule: { t:"Calendar is full", d:"You squeeze your client in" },
@@ -321,8 +332,10 @@ let ringKind = store.get("ol_ring", "marimba");
 let answerMode = store.get("ol_answer", "buttons");
 let callerNames = store.get("ol_callers2", {});
 let repName = store.get("ol_name2", "Dan");
-let caseFile = store.get("ol_case5", []);
-if (caseFile.length && Date.now() - store.get("ol_case_at", 0) > 4 * 3600e3) { caseFile = []; store.set("ol_case5", []); }
+let caseFile = store.get("ol_case7", []);
+let dayStep = store.get("ol_day7", 0);
+if (!store.get("ol_v7", false)) { pick = DAY[0]; dayStep = 0; store.set("ol_pick", pick); store.set("ol_day7", 0); store.set("ol_v7", true); }
+if (caseFile.length && Date.now() - store.get("ol_case_at", 0) > 4 * 3600e3) { caseFile = []; store.set("ol_case7", []); }
 let timer = null, conv = null, ctx = null, ring = null, ambience = null, callStart = 0, tick = null,
     taps = 0, tapTimer = null, current = null, sel = null, lastId = store.get("ol_last", null);
 
@@ -345,12 +358,13 @@ function renderHome(){
   const s = BY_ID[pick];
   $("whoAv").className = "av " + s.who; $("whoAv").textContent = INITIAL[s.who];
   $("whoName").textContent = PERSON[s.who];
-  $("whoDesc").textContent = `${SHORT[s.id].t} · ${SHORT[s.id].d}`;
+  const inDay = dayStep >= 0 && DAY[dayStep] === s.id;
+  $("whoDesc").textContent = (inDay ? `Call ${dayStep+1} of ${DAY.length} · ` : "") + SHORT[s.id].t;
   $("timeVal").textContent = timeLabel(delay);
   $("contactVal").textContent = callerFor(s.who);
   $("ringVal").textContent = RINGS.find(r => r[0] === ringKind)[1];
   $("answerVal").textContent = answerMode === "slide" ? "Slide" : "Buttons";
-  $("storyVal").textContent = caseFile.length ? `${caseFile.length} earlier call${caseFile.length > 1 ? "s" : ""}` : "New deal";
+  $("storyVal").textContent = dayStep >= 0 ? `Call ${dayStep+1} of ${DAY.length}` : "Single call";
 }
 
 /* ---------- Pushed pages ---------- */
@@ -365,12 +379,15 @@ const goHome = () => $("backBtn").onclick();
 const PAGES = {
   who(){
     const people = ["sarah","dave","client"];
-    const html = people.map(p => `<div class="group-title">${PERSON[p]}</div><div class="group">` +
-      SCENARIOS.filter(s => s.who === p).map(s =>
-        `<button class="row tall" data-id="${s.id}"><span class="av ${p}">${INITIAL[p]}</span><span class="lbl">${SHORT[s.id].t}<span class="sub2">${SHORT[s.id].d}</span></span>${s.id === pick ? TICK : ""}</button>`
+    const dayHtml = `<div class="group-title">The day · calls in order</div><div class="group">` + DAY.map((id,i) => { const s = BY_ID[id];
+        return `<button class="row tall" data-day="${i}"><span class="av ${s.who}">${i+1}</span><span class="lbl">${SHORT[id].t}<span class="sub2">${PERSON[s.who]} · ${SHORT[id].d}</span></span>${dayStep === i ? TICK : ""}</button>`; }).join("") + `</div>`;
+    const html = dayHtml + `<div class="group-title" style="margin-top:30px">Single calls</div>` + people.map(p => `<div class="group-title">${PERSON[p]}</div><div class="group">` +
+      SCENARIOS.filter(s => s.who === p && !DAY.includes(s.id) || (s.who === p && s.id === "client")).map(s =>
+        `<button class="row tall" data-id="${s.id}"><span class="av ${p}">${INITIAL[p]}</span><span class="lbl">${SHORT[s.id].t}<span class="sub2">${SHORT[s.id].d}</span></span>${s.id === pick && dayStep < 0 ? TICK : ""}</button>`
       ).join("") + `</div>`).join("");
     openPage("Who calls", html, () => {
-      $("subBody").querySelectorAll("[data-id]").forEach(b => b.onclick = () => { pick = b.dataset.id; store.set("ol_pick", pick); goHome(); });
+      $("subBody").querySelectorAll("[data-id]").forEach(b => b.onclick = () => { pick = b.dataset.id; dayStep = -1; store.set("ol_pick", pick); store.set("ol_day7", -1); goHome(); });
+      $("subBody").querySelectorAll("[data-day]").forEach(b => b.onclick = () => { dayStep = +b.dataset.day; pick = DAY[dayStep]; store.set("ol_pick", pick); store.set("ol_day7", dayStep); goHome(); });
     });
   },
   time(){
@@ -415,14 +432,13 @@ const PAGES = {
     });
   },
   story(){
-    const list = caseFile.length
-      ? `<div class="group plain">` + caseFile.map((c,i) => `<div class="row"><span class="lbl">${i+1}. ${esc(c.speaker.split(" ")[0])} · ${esc(c.title)}</span><span class="val">${c.lines.length - 1} lines</span></div>`).join("") + `</div>`
-      : `<div class="group plain"><div class="row"><span class="lbl" style="color:var(--muted)">No calls yet on this deal</span></div></div>`;
-    const html = `<p class="group-note" style="margin-top:14px">Every call remembers what was said in the earlier calls on the same deal: the client's name, the address, the price, what Dave approved. When you start with a new client, tap New deal.</p>
-      <div class="group-title">This deal</div>${list}
-      <div class="group plain"><button class="row danger" id="newDeal"><span class="lbl">New deal</span></button></div>`;
-    openPage("Story", html, () => {
-      $("newDeal").onclick = () => { caseFile = []; store.set("ol_case5", []); lastId = null; store.set("ol_last", null); goHome(); };
+    const html = `<p class="group-note" style="margin-top:14px">The calls of one deal, in order. Each office call remembers what you said in the earlier ones. After a call ends, the next one is ready: just press Start.</p>
+      <div class="group">` + DAY.map((id,i) => { const sc = BY_ID[id];
+        return `<button class="row tall" data-day="${i}"><span class="av ${sc.who}">${i+1}</span><span class="lbl">${SHORT[id].t}<span class="sub2">${PERSON[sc.who]}</span></span>${dayStep === i ? TICK : ""}</button>`; }).join("") + `</div>
+      <div class="group plain"><button class="row danger" id="newDeal"><span class="lbl">Start the day over</span></button></div>`;
+    openPage("The day", html, () => {
+      $("subBody").querySelectorAll("[data-day]").forEach(b => b.onclick = () => { dayStep = +b.dataset.day; pick = DAY[dayStep]; store.set("ol_pick", pick); store.set("ol_day7", dayStep); goHome(); });
+      $("newDeal").onclick = () => { caseFile = []; store.set("ol_case7", []); dayStep = 0; pick = DAY[0]; store.set("ol_day7", 0); store.set("ol_pick", pick); goHome(); };
     });
   },
 };
@@ -569,6 +585,7 @@ async function prepare(){
 
 $("armBtn").onclick = async () => {
   if (!(await prepare())) return;
+  if (dayStep <= 0) { caseFile = []; store.set("ol_case7", []); }
   show("armed");
   $("armedTxt").textContent = `The phone will be called in ${inWords(delay)}. Don't lock the screen and don't return to the home screen.`;
   clearTimeout(timer);
@@ -629,8 +646,8 @@ $("acceptBtn").onclick = async () => {
   };
   paint(); clearInterval(tick); tick = setInterval(paint, 500);
   const n = name();
-  const history = caseBlock(n);
-  const first = caseFile.length ? AGAIN[sel.who](n) : sel.first(n);
+  const history = (dayStep > 0 && sel.who !== "client" && DAY[dayStep] === sel.id) ? caseBlock(n) : "";
+  const first = sel.first(n);
   current = { speaker: SPEAKER[sel.who], title: SHORT[sel.id].t, lines: [] };
   try {
     conv = await Conversation.startSession({
@@ -708,9 +725,9 @@ $("endBtn").onclick = () => endCall(true);
 /* Save what was said so the next call continues from it */
 function storeCurrent(manual){
   const c = current; current = null;
-  if (!c || !c.lines.length) return;
+  if (!c || !c.lines.length || dayStep < 0 || DAY[dayStep] !== sel?.id) return;
   c.lines.push(manual ? `(${name()} hung up here)` : "(call ended here)");
-  caseFile.push(c); caseFile = caseFile.slice(-6); store.set("ol_case5", caseFile); store.set("ol_case_at", Date.now());
+  caseFile.push(c); caseFile = caseFile.slice(-6); store.set("ol_case7", caseFile); store.set("ol_case_at", Date.now());
 }
 
 let ending = false;
@@ -732,7 +749,10 @@ function afterCall(){
   inCall = false; setEar(false); earSeen = false; manualMute = false; earSince = 0; awaySince = 0;
   if (sel) {
     lastId = sel.id; store.set("ol_last", lastId);
-    if (caseFile.length && NEXT[sel.id]) { pick = NEXT[sel.id]; store.set("ol_pick", pick); }
+    if (dayStep >= 0 && DAY[dayStep] === sel.id) {
+      dayStep = dayStep + 1 < DAY.length ? dayStep + 1 : 0;
+      pick = DAY[dayStep]; store.set("ol_pick", pick); store.set("ol_day7", dayStep);
+    }
   }
   $("muteBtn").setAttribute("aria-pressed", "false");
   reset();
