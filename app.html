@@ -105,6 +105,8 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 #spring .dots{margin-top:auto;display:flex;justify-content:center;gap:8px;padding-bottom:14px}
 #spring .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
 #spring .dots i:first-child{background:#fff}
+#spring.photo{background-size:cover;background-position:center}
+#spring.photo > *{visibility:hidden}
 #spring .dock{display:grid;grid-template-columns:repeat(4,1fr);justify-items:center;padding:14px 10px;border-radius:30px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 </style>
 <style>
@@ -159,13 +161,14 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
     <button class="row" data-page="contact"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 2c-3 0-9 1.5-9 4.5V21h18v-2.5c0-3-6-4.5-9-4.5z"/></svg></span><span class="lbl">Contact</span><span class="val" id="contactVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
     <button class="row" data-page="ringtone"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11c0-3.1-1.6-5.6-4.5-6.3V4a1.5 1.5 0 00-3 0v.7C7.6 5.4 6 7.9 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></span><span class="lbl">Ringtone</span><span class="val" id="ringVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
     <button class="row" data-page="answer"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2zm0 3v13h10V5H7z"/></svg></span><span class="lbl">Answer mode</span><span class="val" id="answerVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="homescreen"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg></span><span class="lbl">Home screen</span><span class="val" id="homeVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
     <button class="row" data-page="story"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l4 4 4-4H6a7 7 0 112.05 4.95l-1.42 1.42A9 9 0 1013 3zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8H12z"/></svg></span><span class="lbl">The day</span><span class="val" id="storyVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
   </div>
 
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v8</div>
+  <div class="ver">Office Line v9</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -379,6 +382,7 @@ const CHEV = '<svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/>
 const TICK = '<svg class="tick" viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg>';
 const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 
+let homeImg = store.get("ol_home_img", null);
 /* ---------- Home ---------- */
 function renderHome(){
   const s = BY_ID[pick];
@@ -389,6 +393,7 @@ function renderHome(){
   $("timeVal").textContent = timeLabel(delay);
   $("contactVal").textContent = callerFor(s.who);
   $("ringVal").textContent = RINGS.find(r => r[0] === ringKind)[1];
+  $("homeVal").textContent = homeImg ? "Your screenshot" : "Built-in";
   $("answerVal").textContent = answerMode === "slide" ? "Slide" : "Buttons";
   $("storyVal").textContent = dayStep >= 0 ? `Call ${dayStep+1} of ${DAY.length}` : "Single call";
 }
@@ -455,6 +460,30 @@ const PAGES = {
     </div><p class="group-note">Buttons looks like a call while the phone is unlocked. Slide looks like a call on the lock screen.</p>`;
     openPage("Select Answer Mode", html, () => {
       $("subBody").querySelectorAll("[data-m]").forEach(b => b.onclick = () => { answerMode = b.dataset.m; store.set("ol_answer", answerMode); goHome(); });
+    });
+  },
+  homescreen(){
+    const html = `<p class="group-note" style="margin-top:14px">After a call the app shows a phone home screen (double-tap it to come back here). For it to look exactly like your iPhone: take a screenshot of your own home screen, then choose it here.</p>
+      <div class="group plain">
+        <label class="row" style="cursor:pointer"><span class="lbl" style="color:#0a84ff">Choose screenshot…</span><input id="homeFile" type="file" accept="image/*" style="display:none"></label>
+        <button class="row" id="homeBuiltIn"><span class="lbl">Use built-in</span>${homeImg ? "" : TICK}</button>
+      </div>
+      ${homeImg ? `<div style="margin:18px auto 0;width:46%;aspect-ratio:9/19.5;border-radius:18px;background:url(${homeImg}) center/cover;box-shadow:0 2px 10px rgba(0,0,0,.15)"></div>` : ""}
+      <p class="err" id="homeErr" hidden></p>`;
+    openPage("Home screen", html, () => {
+      $("homeBuiltIn").onclick = () => { homeImg = null; try { localStorage.removeItem("ol_home_img"); } catch(e){} goHome(); };
+      $("homeFile").onchange = async (e) => {
+        const f = e.target.files && e.target.files[0]; if (!f) return;
+        try {
+          const img = await createImageBitmap(f);
+          const w = Math.min(1170, img.width), h = Math.round(img.height * w / img.width);
+          const c = document.createElement("canvas"); c.width = w; c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          let q = 0.82, url = c.toDataURL("image/jpeg", q);
+          while (url.length > 2.6e6 && q > 0.4) { q -= 0.1; url = c.toDataURL("image/jpeg", q); }
+          localStorage.setItem("ol_home_img", JSON.stringify(url)); homeImg = url; goHome();
+        } catch(err) { $("homeErr").textContent = "Couldn't save that image. Try another screenshot."; $("homeErr").hidden = false; }
+      };
     });
   },
   story(){
@@ -686,6 +715,7 @@ $("acceptBtn").onclick = async () => {
         const who = (m.source === "user" || m.role === "user") ? n : SPEAKER[sel.who].split(" ")[0];
         current.lines.push(`${who}: ${text}`);
       },
+      onModeChange: onMode,
       onConnect: () => {
         setSpeaker($("speakerBtn").getAttribute("aria-pressed") === "true");
         // Office ambience disabled: the mic picked it up and the agent "heard" it as speech
@@ -702,30 +732,36 @@ $("acceptBtn").onclick = async () => {
 };
 
 
-/* ---------- Ear detection + auto-mute ----------
-   Phone at your ear → screen black, mic ON.
-   Lower the phone (talking to the client) → mic MUTED automatically, mute button lights up.
-   Raise it back to your ear → mic ON again. */
-let inCall = false, earSince = 0, awaySince = 0, earSeen = false, manualMute = false;
+/* ---------- Ear detection ----------
+   Phone at your ear → screen black, speaker off (quiet, like the earpiece).
+   Lower the phone → screen back, speaker on again. The mic is never muted automatically. */
+let inCall = false, earSince = 0, awaySince = 0, earSeen = false, manualMute = false, speakerOn = true, agentTalking = false, unmuteTimer = null;
 function setEar(on){ $("ear").hidden = !on; }
-function setMute(on){
-  $("muteBtn").setAttribute("aria-pressed", on);
-  try { conv?.setMicMuted?.(on); } catch(e){}
+function applyMic(){
+  // On speaker, the mic is closed while she talks so she doesn't hear her own voice (echo).
+  const closed = manualMute || (speakerOn && agentTalking);
+  try { conv?.setMicMuted?.(closed); } catch(e){}
+}
+function setMute(on){ manualMute = on; $("muteBtn").setAttribute("aria-pressed", on); applyMic(); }
+function onMode(m){
+  const talking = (m && (m.mode || m)) === "speaking";
+  clearTimeout(unmuteTimer);
+  if (talking) { agentTalking = true; applyMic(); }
+  else unmuteTimer = setTimeout(() => { agentTalking = false; applyMic(); }, 350);
 }
 addEventListener("deviceorientation", (e) => {
   if (!inCall || e.beta == null) return;
   const b = Math.abs(e.beta), g = Math.abs(e.gamma || 0);
-  // At the ear the phone is upright AND tilted sideways; looking at it, it's square to you.
   const atEar = b > 45 && b < 135 && g > 28;
   const now = Date.now();
   if (atEar) {
     awaySince = 0;
     if (!earSince) earSince = now;
-    if (now - earSince > 350) { setEar(true); earSeen = true; if (!manualMute) setMute(false); }
+    if (now - earSince > 350 && !earSeen) { setEar(true); earSeen = true; setSpeaker(false); }
   } else {
-    earSince = 0; setEar(false);
+    earSince = 0;
     if (!awaySince) awaySince = now;
-    if (earSeen && now - awaySince > 600) setMute(true);
+    if (earSeen && now - awaySince > 500) { setEar(false); earSeen = false; setSpeaker(true); }
   }
 });
 // Backup: double-tap the name to black out manually; tap the black screen to wake it.
@@ -733,16 +769,13 @@ let lastTap = 0;
 $("who").addEventListener("click", () => { if (!inCall) return; const t = Date.now(); if (t - lastTap < 350) setEar(true); lastTap = t; });
 $("ear").addEventListener("click", () => { setEar(false); earSince = Date.now() + 1500; });
 
-$("muteBtn").onclick = () => {
-  const on = $("muteBtn").getAttribute("aria-pressed") !== "true";
-  manualMute = on;
-  if (!on) earSeen = false;   // tapping it off keeps the mic open until you raise the phone again
-  setMute(on);
-};
-/* Speaker: lit = loud (speakerphone). Tap to turn it off = quiet, like holding it to your ear. */
+$("muteBtn").onclick = () => setMute($("muteBtn").getAttribute("aria-pressed") !== "true");
+/* Speaker: lit = loud (speakerphone). Off = quiet, like holding it to your ear. */
 function setSpeaker(on){
+  speakerOn = on;
   $("speakerBtn").setAttribute("aria-pressed", on);
   try { conv?.setVolume?.({ volume: on ? 1 : 0.22 }); } catch(e){}
+  applyMic();
 }
 $("speakerBtn").onclick = () => setSpeaker($("speakerBtn").getAttribute("aria-pressed") !== "true");
 
@@ -772,7 +805,7 @@ async function endCall(manual){
 
 /* ---------- After a call: back to Home, already set to the logical next caller ---------- */
 function afterCall(){
-  inCall = false; setEar(false); earSeen = false; manualMute = false; earSince = 0; awaySince = 0;
+  inCall = false; setEar(false); earSeen = false; manualMute = false; agentTalking = false; speakerOn = true; earSince = 0; awaySince = 0;
   if (sel) {
     lastId = sel.id; store.set("ol_last", lastId);
     if (dayStep >= 0 && DAY[dayStep] === sel.id) {
@@ -793,7 +826,7 @@ function paintSpring(){
   $("sbDay").textContent = d.toLocaleDateString("en-US", { weekday:"short" });
   $("sbDate").textContent = d.getDate();
 }
-function showSpring(){ paintSpring(); clearInterval(springTick); springTick = setInterval(paintSpring, 10000); show("spring"); }
+function showSpring(){ $("spring").classList.toggle("photo", !!homeImg); $("spring").style.backgroundImage = homeImg ? `url(${homeImg})` : ""; paintSpring(); clearInterval(springTick); springTick = setInterval(paintSpring, 10000); show("spring"); }
 $("spring").addEventListener("click", () => {
   const t = Date.now();
   if (t - springTap < 400) { springTap = 0; clearInterval(springTick); renderHome(); show("setup"); }
