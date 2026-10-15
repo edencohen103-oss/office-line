@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Office Line">
+<meta name="theme-color" content="#f2f2f7">
+<title>Office Line</title>
+<style>
+/* Home looks like an iOS Settings page: grouped list, chevrons, one Start button. */
+:root{
+  --bg:#f2f2f7; --cell:#fff; --sep:#c6c6c8; --fg:#000; --muted:#8a8a8e; --tint:#ff3b30; --check:#ff3b30;
+  --sarah:#34c759; --dave:#ff9f0a; --client:#0a84ff;
+  --ui:-apple-system,"SF Pro Text","SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:var(--ui)}
+body{overflow-x:hidden;-webkit-user-select:none;user-select:none}
+input{-webkit-user-select:text;user-select:text}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+[hidden]{display:none!important}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 16px calc(env(safe-area-inset-bottom,0px) + 14px)}
+
+/* ---------- Home / pages ---------- */
+.page{background:var(--bg);overflow-y:auto}
+.topbar{height:44px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;flex:none}
+.topbar h1{margin:0;text-align:center;font-size:17px;font-weight:600}
+.round{width:34px;height:34px;border-radius:50%;background:rgba(120,120,128,.14);display:grid;place-items:center}
+.round svg{width:18px;height:18px;fill:#3c3c43}
+.logo{display:grid;place-items:center}
+.logo span{width:34px;height:34px;border-radius:50%;background:var(--tint);display:grid;place-items:center}
+.logo svg{width:18px;height:18px;fill:#fff}
+
+.group{background:var(--cell);border-radius:12px;overflow:hidden;margin-top:18px}
+.group-title{font-size:13px;color:var(--muted);text-transform:uppercase;margin:24px 16px -10px;letter-spacing:.02em}
+.group-note{font-size:13px;color:var(--muted);margin:8px 16px 0;line-height:1.4}
+.row{width:100%;display:flex;align-items:center;gap:12px;min-height:46px;padding:0 14px;text-align:left;position:relative;font-size:17px}
+.row + .row::before{content:"";position:absolute;top:0;left:52px;right:0;height:.5px;background:var(--sep)}
+.group.plain .row + .row::before{left:16px}
+.row .ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex:none;color:#fff}
+.row .ic svg{width:17px;height:17px;fill:#fff}
+.row .lbl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .val{color:var(--muted);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.row .chev{width:8px;height:13px;flex:none;fill:none;stroke:#c4c4c7;stroke-width:2}
+.row .tick{width:16px;height:16px;fill:none;stroke:var(--check);stroke-width:2.6;flex:none}
+.row input{flex:1;min-width:0;border:0;background:none;font:17px var(--ui);text-align:right;color:var(--muted);outline:none}
+.row .sub2{display:block;font-size:13px;color:var(--muted);margin-top:1px}
+.row.tall{min-height:58px;padding-block:8px}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff;flex:none}
+.av.sarah{background:var(--sarah)} .av.dave{background:var(--dave)} .av.client{background:var(--client)}
+
+.start{margin-top:22px;width:100%;height:50px;border-radius:12px;background:var(--cell);font-size:17px;font-weight:600;color:#000}
+.start:active{background:#e5e5ea}
+.danger{color:var(--tint)}
+.err{color:var(--tint);font-size:14px;text-align:center;margin-top:12px}
+.hint{font-size:13px;color:var(--muted);text-align:center;margin:14px 8px 0;line-height:1.4}
+.ver{font-size:12px;color:#aeaeb2;text-align:center;margin-top:18px}
+
+/* Answer mode preview cards */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.mode{border-radius:14px;padding:6px;background:var(--cell);border:2px solid transparent}
+.mode[aria-pressed="true"]{border-color:var(--tint)}
+.mode .mini{aspect-ratio:9/16;border-radius:10px;background:linear-gradient(180deg,#3a3a3e,#1b1b1e);color:#fff;display:flex;flex-direction:column;align-items:center;padding:16px 8px 12px}
+.mode .mini small{font-size:9px;color:#aaa}
+.mode .mini b{font-size:17px;font-weight:600}
+.mode .mini .bt{margin-top:auto;display:flex;justify-content:space-around;width:100%}
+.mode .mini .bt i{width:22px;height:22px;border-radius:50%;display:block}
+.mode .mini .sl{margin-top:auto;width:90%;height:24px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;padding:2px}
+.mode .mini .sl i{width:20px;height:20px;border-radius:50%;background:#fff;display:block}
+.mode p{margin:6px 0 2px;font-size:14px;text-align:center}
+
+/* Armed: pure black, tiny hint at the bottom */
+#armed{background:#000;justify-content:flex-end;align-items:center}
+#armed p{color:#3a3a3c;font-size:11px;text-align:center;max-width:300px;line-height:1.4;margin:0 0 6px}
+
+/* Slide to answer */
+.slide-wrap{margin-top:auto;width:100%;max-width:330px;display:flex;flex-direction:column;align-items:center;gap:44px;padding-bottom:max(5vh,28px)}
+.slide-wrap .pair{display:grid;grid-template-columns:1fr 1fr;width:100%}
+.track{position:relative;width:100%;height:76px;border-radius:38px;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow:hidden;touch-action:none}
+.track .txt{position:absolute;inset:0;display:grid;place-items:center;padding-left:60px;font-size:21px;color:transparent;
+  background:linear-gradient(90deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.35) 40%,#fff 50%,rgba(255,255,255,.35) 60%,rgba(255,255,255,.35) 100%);
+  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;animation:shine 2.6s linear infinite}
+@keyframes shine{from{background-position:100% 0}to{background-position:-150% 0}}
+.knob{position:absolute;left:6px;top:6px;width:64px;height:64px;border-radius:50%;background:#fff;display:grid;place-items:center;will-change:transform}
+.knob svg{width:30px;height:30px;fill:#34c759}
+</style>
+<style>
+/* Call — native iOS call screen look */
+#call{background:#222224;background:linear-gradient(180deg,#3a3a3e 0%,#26262a 45%,#1b1b1e 100%);align-items:center;text-align:center;
+  font-family:-apple-system,"SF Pro Display","SF Pro Text",system-ui,sans-serif;color:#fff}
+.who{margin-top:max(8vh,56px);display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
+.sub{font-size:19px;font-weight:600;color:#9d9da2;letter-spacing:.01em}
+.name{font-size:clamp(30px,9vw,38px);font-weight:600;letter-spacing:-.01em;text-wrap:balance;padding-inline:8px;line-height:1.15}
+.live .sub{order:2;font-size:18px;font-weight:400;color:#c7c7cc}
+.timer{font-variant-numeric:tabular-nums}
+
+.ring-wrap{margin-top:auto;width:100%;max-width:330px;display:grid;grid-template-columns:1fr 1fr;row-gap:40px;padding-bottom:max(4vh,24px)}
+.act{display:flex;flex-direction:column;align-items:center;gap:12px;font-size:17px;font-weight:500;color:#fff}
+.small .circle{width:46px;height:46px;background:#3a3a3c;border:1px solid #4a4a4e}
+.small svg{width:22px;height:22px;fill:#fff}
+.big .circle{width:76px;height:76px}
+.big svg{width:34px;height:34px;fill:#fff}
+.circle{border-radius:50%;display:grid;place-items:center}
+.decline .circle{background:#b8312a}
+.accept .circle{background:#4a8c45}
+
+.grid{margin-top:auto;width:100%;max-width:310px;display:grid;grid-template-columns:repeat(3,1fr);row-gap:22px;justify-items:center}
+.key{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#fff}
+.key .circle{width:76px;height:76px;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.key.end .circle{background:#eb4545}
+.key svg{width:30px;height:30px;fill:#fff}
+.key[aria-pressed="true"] .circle{background:#fff}
+.key[aria-pressed="true"] svg{fill:#1c1c1e}
+.endrow{height:max(7vh,44px)}
+.endrow .circle{width:72px;height:72px;background:#eb4545}
+.endrow svg{width:32px;height:32px;fill:#fff}
+
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section id="setup" class="screen page">
+  <div class="topbar">
+    <button class="round" id="moreBtn" aria-label="More settings"><svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></button>
+    <div class="logo"><span><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></span></div>
+    <span></span>
+  </div>
+
+  <div class="group">
+    <button class="row tall" data-page="who"><span class="av" id="whoAv">S</span><span class="lbl"><span id="whoName">Sarah</span><span class="sub2" id="whoDesc"></span></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+  </div>
+
+  <div class="group">
+    <button class="row" data-page="time"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 10.4l3.5 2.1-.8 1.3L11 13V7h2v5.4z"/></svg></span><span class="lbl">Time</span><span class="val" id="timeVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="contact"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 2c-3 0-9 1.5-9 4.5V21h18v-2.5c0-3-6-4.5-9-4.5z"/></svg></span><span class="lbl">Contact</span><span class="val" id="contactVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="ringtone"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11c0-3.1-1.6-5.6-4.5-6.3V4a1.5 1.5 0 00-3 0v.7C7.6 5.4 6 7.9 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></span><span class="lbl">Ringtone</span><span class="val" id="ringVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="answer"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2zm0 3v13h10V5H7z"/></svg></span><span class="lbl">Answer mode</span><span class="val" id="answerVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="story"><span class="ic" style="background:#ff3b30"><svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l4 4 4-4H6a7 7 0 112.05 4.95l-1.42 1.42A9 9 0 1013 3zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8H12z"/></svg></span><span class="lbl">Story</span><span class="val" id="storyVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+  </div>
+
+  <button class="start" id="armBtn">Start</button>
+  <div class="err" id="err" hidden></div>
+  <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
+  <div class="ver">Office Line v6</div>
+</section>
+
+<!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
+<section id="sub" class="screen page" hidden>
+  <div class="topbar">
+    <button class="round" id="backBtn" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15.4 4.6L8 12l7.4 7.4-1.4 1.4L5.2 12 14 3.2z"/></svg></button>
+    <h1 id="subTitle"></h1>
+    <span></span>
+  </div>
+  <div id="subBody"></div>
+</section>
+
+<!-- ARMED (black) -->
+<section id="armed" class="screen" hidden><p id="armedTxt"></p></section>
+
+<!-- EAR: black screen while the phone is at your ear -->
+<div id="ear" hidden style="position:fixed;inset:0;background:#000;z-index:50"></div>
+
+<!-- CALL -->
+<section id="call" class="screen" hidden>
+  <div class="who" id="who">
+    <div class="sub" id="callSub">mobile</div>
+    <div class="name" id="callerName">Office</div>
+  </div>
+
+  <div class="ring-wrap" id="ringActions">
+    <button class="act small" type="button" tabindex="-1"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.4 6.1-.2 1.4-.8 2.7-1.8 3.7 1.9-.1 3.6-.8 4.9-1.9 1.1.3 2.3.5 3.5.5 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg></span>Message</button>
+    <button class="act small" type="button" tabindex="-1"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 5a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm.5-10H11v5l4 2.4.7-1.2-3.2-1.9V9zM6.4 2.6L2.6 5.8l1.3 1.5 3.8-3.2-1.3-1.5zm11.2 0l-1.3 1.5 3.8 3.2 1.3-1.5-3.8-3.2z"/></svg></span>Remind me</button>
+    <button class="act big decline" id="declineBtn"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.996.996 0 010-1.41C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg></span>Decline</button>
+    <button class="act big accept" id="acceptBtn"><span class="circle"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></span>Accept</button>
+  </div>
+
+    <div class="slide-wrap" id="slideActions" hidden>
+    <div class="pair">
+      <span class="act small"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.4 6.1-.2 1.4-.8 2.7-1.8 3.7 1.9-.1 3.6-.8 4.9-1.9 1.1.3 2.3.5 3.5.5 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg></span>Message</span>
+      <span class="act small"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 5a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm.5-10H11v5l4 2.4.7-1.2-3.2-1.9V9z"/></svg></span>Remind me</span>
+    </div>
+    <div class="track" id="track"><span class="txt">slide to answer</span><span class="knob" id="knob"><svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg></span></div>
+  </div>
+
+  <div id="liveActions" hidden style="margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center">
+    <div class="grid">
+      <button class="key" id="speakerBtn" aria-pressed="true"><span class="circle"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05A4.5 4.5 0 0016.5 12zM14 3.23v2.06a7 7 0 010 13.42v2.06A9 9 0 0014 3.23z"/></svg></span>speaker</button>
+      <button class="key" type="button" tabindex="-1"><span class="circle"><svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z"/></svg></span>FaceTime</button>
+      <button class="key" id="muteBtn" aria-pressed="false"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg></span>mute</button>
+      <button class="key" type="button" tabindex="-1"><span class="circle"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></span>add</button>
+      <button class="key end" id="endBtn"><span class="circle"><svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.996.996 0 010-1.41C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg></span>end</button>
+      <button class="key" type="button" tabindex="-1"><span class="circle"><svg viewBox="0 0 24 24"><path d="M6 3a2 2 0 100 4 2 2 0 000-4zm6 0a2 2 0 100 4 2 2 0 000-4zm6 0a2 2 0 100 4 2 2 0 000-4zM6 10a2 2 0 100 4 2 2 0 000-4zm6 0a2 2 0 100 4 2 2 0 000-4zm6 0a2 2 0 100 4 2 2 0 000-4zM12 17a2 2 0 100 4 2 2 0 000-4z"/></svg></span>keypad</button>
+    </div>
+    <div class="endrow"></div>
+  </div>
+</section>
+
+
+<script type="module">
+import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@0/+esm";
+
+/* One ElevenLabs agent per character, each with its own voice */
+const AGENTS = {
+  sarah:  "agent_4501m4vx52p9f8rvedwq0cs1x9k1",
+  dave:   "agent_6701m4vywkxqej9b1xjwe9jfqays",
+  client: "agent_3501m4vywq1cfq89ywqy5s77pt0r"
+};
+const SPEAKER = { sarah:"Sarah (office)", dave:"Dave (manager)", client:"Mark (homeowner)" };
+const DEFAULT_CALLER = { sarah:"Office", dave:"Dave", client:"Mark Reynolds" };
+const INITIAL = { sarah:"S", dave:"D", client:"M" };
+const AGAIN = {
+  sarah:  (n)=>`${n}, it's Sarah again.`,
+  dave:   (n)=>`${n}, it's Dave. Sarah filled me in. Talk to me.`,
+  client: (n)=>`Hi ${n}, it's Mark Reynolds again, sorry to bug you.`
+};
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+const OFFICE_BASE = (n) => `# Who you are
+You are Sarah, the office coordinator at a busy California home-improvement and construction company. You've been there for years and heard every excuse. You handle applications, scheduling, crews, suppliers and you pass things up to the manager, Dave. You like ${n} (a field sales rep) and deep down you want him to close, but you're swamped and you protect the company's rules. Default answer is no; he has to earn every yes.
+
+# How you talk
+- A real person on a work call, never an assistant. Short sentences, one to three per turn. Fillers: "um", "okay so", "hold on", "yeah, yeah", "let me see here".
+- Sometimes distracted by the office: "sorry, someone's at my desk", "hang on, my other line", typing pauses ("okay... pulling it up...").
+- When pushed, mild frustration: "${n}...", "you're killing me", "every rep says that".
+- Never say you're an AI, never break character, never read lists, no customer-service phrases.
+
+# How you play it
+- YOU called ${n}. Get to the point of your call quickly.
+- Resist three or four times before giving any ground, and give ground in small steps.
+- Don't accept vague pushes ("come on", "please"). Make him give real reasons; if weak, say "That's not a reason, ${n}."
+- If he makes a genuinely good case, help him: find the way through, but every win comes with a condition and a deadline.
+- Improvise names (crew leads Mike or Carlos, other jobs) and stay consistent.
+- If he goes quiet: "${n}? You there?" When it's settled, wrap up fast: "Alright, I gotta jump, call me when you're out of there."
+
+# This call
+`;
+
+const SCENARIOS = [
+  { id:"intake", who:"sarah", caller:"Office", initial:"O", title:"Office · new application",
+    desc:"Asks for application #, address, scope, photos",
+    first:(n)=>`Hey ${n}, it's Sarah. You're at that appointment, right? I need the details to start the file.`,
+    brief:(n)=>`You need the details to open a file on the job ${n} is at right now: the application number, the property address and what the client wants done. Confirm details briefly as you type. Ask for photos of the job once. Mention once that underwriting has been tough lately so you can't promise anything.` },
+  { id:"denied", who:"sarah", caller:"Office", initial:"O", title:"Office · not approved",
+    desc:"Came back denied — you fight for the client",
+    first:(n)=>`${n}, hey. So... I got the answer back on that application. You're not gonna love it.`,
+    brief:(n)=>`The application ${n} sent earlier came back not approved as submitted. Start firm: it's underwriting's call, not yours. If he makes real arguments, find one path forward (for example a resubmission with something extra), mention its condition once, and let him go handle it.` },
+  { id:"schedule", who:"sarah", caller:"Office", initial:"O", title:"Office · calendar is full",
+    desc:"Next week is packed — you squeeze them in",
+    first:(n)=>`${n}, quick one, don't promise that client any dates. Next week is completely slammed.`,
+    brief:(n)=>`Next week's install calendar is full. Mention a couple of specific jobs in the way. If he fights for his client with good reasons, find a tight slot that only works if something else goes right, and say that once.` },
+  { id:"price", who:"sarah", caller:"Office", initial:"O", title:"Office · supplier price jump",
+    desc:"Material costs up — you hold the old quote",
+    first:(n)=>`Hey ${n}, heads up before you quote anything. Supplier just sent new pricing and it's up. A lot.`,
+    brief:(n)=>`The supplier just raised material prices, so the old quote no longer covers the job. Push back on honoring it. If he makes a strong case, agree to fight for the old number on the condition that the client signs today.` },
+  { id:"crew", who:"sarah", caller:"Office", initial:"O", title:"Office · crew opened up",
+    desc:"Earlier start available, others want it",
+    first:(n)=>`${n}, you got a sec? A job just pushed and I've got a crew opening up earlier than planned.`,
+    brief:(n)=>`A job got pushed and a crew is free earlier than planned, but other reps want the slot too. Make him convince you his client should get it; if he does, it's his as long as the client commits now.` },
+  { id:"busy", who:"sarah", caller:"Office", initial:"O", title:"Office · where are you?",
+    desc:"Quick check-in, packed day, next appt waiting",
+    first:(n)=>`${n}! Where are you? Your four o'clock already called asking if you're still coming.`,
+    brief:(n)=>`Quick, hurried check-in: where is he, how long will he be, his next appointment is already waiting, and people keep asking for him by name. Keep it short and get off the phone.` },
+  { id:"manager", who:"dave", caller:"Dave", initial:"D", title:"Dave · manager approval",
+    desc:"You ask for the special discount",
+    first:(n)=>`${n}, it's Dave. Sarah said you needed me?`,
+    brief:null },
+  { id:"client", who:"client", caller:"Mark Reynolds", initial:"M", title:"Client · install tomorrow",
+    desc:"Another customer asking when the crew comes",
+    first:(n)=>`Hi, is this ${n}? It's Mark Reynolds, I'm just checking on tomorrow.`,
+    brief:null },
+];
+
+const DAVE = (n) => `You are Dave, sales manager at a busy California home-improvement and construction company. ${n}, one of your field reps, is with a client and wants an extra discount or exception approved. You called him back because Sarah told you he needed you.
+- Real person on a work call: short, a little gruff, busy. One to three sentences per turn. Never an AI, never break character.
+- Default is no: "I already said no to two of these this week." Ask what the job is, the price, why this client deserves it. Resist three or four times.
+- If ${n} makes a strong case, give in grudgingly with conditions: they sign today, today only, and he owes you. "Don't make this a habit."
+- When settled: "Alright. Get it signed." and wrap up.`;
+
+const CLIENT = (n) => `You are Mark Reynolds, a homeowner in California. ${n} sold you a project (new windows) and the crew is supposed to start tomorrow. You're calling him directly because you trust him.
+- Friendly, slightly anxious, a regular guy. One to three sentences per turn. Never an AI, never break character.
+- Ask what time the crew arrives tomorrow, whether you need to move the cars or the dog, how long it takes. Mention your wife wants to make sure it's still on.
+- Thank ${n} warmly, say he's been great and you've already told your neighbor about him. Wrap up when he's answered.`;
+
+
+const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install." };
+const BY_ID = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
+const SHORT = {
+  intake:   { t:"New application",  d:"Wants app #, address, photos" },
+  denied:   { t:"Not approved",     d:"You fight to get it reviewed" },
+  schedule: { t:"Calendar is full", d:"You squeeze your client in" },
+  price:    { t:"Prices went up",   d:"You hold the old quote" },
+  crew:     { t:"Crew opened up",   d:"Earlier start, others want it" },
+  busy:     { t:"Where are you?",   d:"Next appointment is waiting" },
+  manager:  { t:"Manager approval", d:"You ask Dave for the discount" },
+  client:   { t:"Client checking in", d:"Mark asks about tomorrow" },
+};
+
+
+/* ---------- Options ---------- */
+const TIMES = [[3,"3 Seconds Later"],[10,"10 Seconds Later"],[30,"30 Seconds Later"],[60,"1 Minute Later"],[120,"2 Minutes Later"],
+               [300,"5 Minutes Later"],[480,"8 Minutes Later"],[720,"12 Minutes Later"],[1200,"20 Minutes Later"],[1800,"30 Minutes Later"],[3600,"1 Hour Later"]];
+const RINGS = [["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
+const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client" };
+/* What logically comes after each call: Home is pre-set to it so you just press Start */
+const NEXT = { intake:"denied", denied:"manager", schedule:"manager", price:"manager", crew:"busy", busy:"client", manager:"client", client:"busy" };
+
+/* ---------- State ---------- */
+let pick = store.get("ol_pick", "intake"); if (!BY_ID[pick]) pick = "intake";
+let delay = store.get("ol_delay6", 10);
+let ringKind = store.get("ol_ring", "marimba");
+let answerMode = store.get("ol_answer", "buttons");
+let callerNames = store.get("ol_callers2", {});
+let repName = store.get("ol_name2", "Dan");
+let caseFile = store.get("ol_case5", []);
+if (caseFile.length && Date.now() - store.get("ol_case_at", 0) > 4 * 3600e3) { caseFile = []; store.set("ol_case5", []); }
+let timer = null, conv = null, ctx = null, ring = null, ambience = null, callStart = 0, tick = null,
+    taps = 0, tapTimer = null, current = null, sel = null, lastId = store.get("ol_last", null);
+
+const name = () => repName || "Dan";
+const callerFor = (who) => callerNames[who] || DEFAULT_CALLER[who];
+const show = (id) => {
+  ["setup","sub","armed","call"].forEach(s => $(s).hidden = s !== id);
+  const light = id === "setup" || id === "sub";
+  document.querySelector('meta[name="theme-color"]').content = light ? "#f2f2f7" : "#000000";
+  document.body.style.background = light ? "#f2f2f7" : "#000";
+};
+const timeLabel = (v) => (TIMES.find(t => t[0] === v) || [0, `${v} Seconds Later`])[1];
+const inWords = (s) => s < 60 ? `${s} seconds` : s < 3600 ? `${Math.round(s/60)} minute${s >= 120 ? "s" : ""}` : "1 hour";
+const CHEV = '<svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg>';
+const TICK = '<svg class="tick" viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg>';
+const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+/* ---------- Home ---------- */
+function renderHome(){
+  const s = BY_ID[pick];
+  $("whoAv").className = "av " + s.who; $("whoAv").textContent = INITIAL[s.who];
+  $("whoName").textContent = PERSON[s.who];
+  $("whoDesc").textContent = `${SHORT[s.id].t} · ${SHORT[s.id].d}`;
+  $("timeVal").textContent = timeLabel(delay);
+  $("contactVal").textContent = callerFor(s.who);
+  $("ringVal").textContent = RINGS.find(r => r[0] === ringKind)[1];
+  $("answerVal").textContent = answerMode === "slide" ? "Slide" : "Buttons";
+  $("storyVal").textContent = caseFile.length ? `${caseFile.length} earlier call${caseFile.length > 1 ? "s" : ""}` : "New deal";
+}
+
+/* ---------- Pushed pages ---------- */
+let onBack = null;
+function openPage(title, html, wire, back){
+  $("subTitle").textContent = title; $("subBody").innerHTML = html; onBack = back || null;
+  wire && wire(); show("sub"); $("sub").scrollTop = 0;
+}
+$("backBtn").onclick = () => { onBack && onBack(); onBack = null; renderHome(); show("setup"); };
+const goHome = () => $("backBtn").onclick();
+
+const PAGES = {
+  who(){
+    const people = ["sarah","dave","client"];
+    const html = people.map(p => `<div class="group-title">${PERSON[p]}</div><div class="group">` +
+      SCENARIOS.filter(s => s.who === p).map(s =>
+        `<button class="row tall" data-id="${s.id}"><span class="av ${p}">${INITIAL[p]}</span><span class="lbl">${SHORT[s.id].t}<span class="sub2">${SHORT[s.id].d}</span></span>${s.id === pick ? TICK : ""}</button>`
+      ).join("") + `</div>`).join("");
+    openPage("Who calls", html, () => {
+      $("subBody").querySelectorAll("[data-id]").forEach(b => b.onclick = () => { pick = b.dataset.id; store.set("ol_pick", pick); goHome(); });
+    });
+  },
+  time(){
+    const html = `<div class="group plain">` + TIMES.map(([v,l]) =>
+      `<button class="row" data-v="${v}"><span class="lbl">${l}</span>${v === delay ? TICK : ""}</button>`).join("") + `</div>`;
+    openPage("Time", html, () => {
+      $("subBody").querySelectorAll("[data-v]").forEach(b => b.onclick = () => { delay = +b.dataset.v; store.set("ol_delay6", delay); goHome(); });
+    });
+  },
+  contact(){
+    const html = `<div class="group-title">Name on the call screen</div><div class="group plain">` +
+      ["sarah","dave","client"].map(p => `<label class="row"><span class="lbl">${PERSON[p]}</span><input id="cn_${p}" type="text" autocomplete="off" placeholder="${esc(DEFAULT_CALLER[p])}" value="${esc(callerNames[p] || "")}"></label>`).join("") +
+      `</div><div class="group-title">You</div><div class="group plain"><label class="row"><span class="lbl">Your name</span><input id="repName" type="text" autocomplete="off" value="${esc(repName)}"></label></div>
+      <p class="group-note">The callers say your name, so keep it how you want to hear it.</p>`;
+    openPage("Contact", html, null, () => {
+      ["sarah","dave","client"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
+      store.set("ol_callers2", callerNames);
+      repName = $("repName").value.trim() || "Dan"; store.set("ol_name2", repName);
+    });
+  },
+  ringtone(){
+    let stopPreview = null, previewTimer = null;
+    const html = `<div class="group plain">` + RINGS.map(([k,l]) =>
+      `<button class="row" data-k="${k}"><span class="lbl">${l}</span>${k === ringKind ? TICK : ""}</button>`).join("") +
+      `</div><p class="group-note">Tap to hear it. Turn the phone's volume up: iPhone won't vibrate for a web app.</p>`;
+    const stop = () => { clearTimeout(previewTimer); stopPreview && stopPreview(); stopPreview = null; };
+    openPage("Ringtone", html, () => {
+      $("subBody").querySelectorAll("[data-k]").forEach(b => b.onclick = () => {
+        ringKind = b.dataset.k; store.set("ol_ring", ringKind);
+        $("subBody").querySelectorAll("[data-k]").forEach(x => { x.querySelector(".tick")?.remove(); if (x === b) x.insertAdjacentHTML("beforeend", TICK); });
+        stop(); audio().resume(); stopPreview = startRing(ringKind); previewTimer = setTimeout(stop, 4200);
+      });
+    }, stop);
+  },
+  answer(){
+    const html = `<div class="modes">
+      <button class="mode" data-m="buttons" aria-pressed="${answerMode === "buttons"}"><div class="mini"><small>mobile</small><b>${esc(callerFor(BY_ID[pick].who))}</b><div class="bt"><i style="background:#eb4545"></i><i style="background:#34c759"></i></div></div><p>Buttons</p></button>
+      <button class="mode" data-m="slide" aria-pressed="${answerMode === "slide"}"><div class="mini"><small>mobile</small><b>${esc(callerFor(BY_ID[pick].who))}</b><div class="sl"><i></i></div></div><p>Slide</p></button>
+    </div><p class="group-note">Buttons looks like a call while the phone is unlocked. Slide looks like a call on the lock screen.</p>`;
+    openPage("Select Answer Mode", html, () => {
+      $("subBody").querySelectorAll("[data-m]").forEach(b => b.onclick = () => { answerMode = b.dataset.m; store.set("ol_answer", answerMode); goHome(); });
+    });
+  },
+  story(){
+    const list = caseFile.length
+      ? `<div class="group plain">` + caseFile.map((c,i) => `<div class="row"><span class="lbl">${i+1}. ${esc(c.speaker.split(" ")[0])} · ${esc(c.title)}</span><span class="val">${c.lines.length - 1} lines</span></div>`).join("") + `</div>`
+      : `<div class="group plain"><div class="row"><span class="lbl" style="color:var(--muted)">No calls yet on this deal</span></div></div>`;
+    const html = `<p class="group-note" style="margin-top:14px">Every call remembers what was said in the earlier calls on the same deal: the client's name, the address, the price, what Dave approved. When you start with a new client, tap New deal.</p>
+      <div class="group-title">This deal</div>${list}
+      <div class="group plain"><button class="row danger" id="newDeal"><span class="lbl">New deal</span></button></div>`;
+    openPage("Story", html, () => {
+      $("newDeal").onclick = () => { caseFile = []; store.set("ol_case5", []); lastId = null; store.set("ol_last", null); goHome(); };
+    });
+  },
+};
+document.querySelectorAll("[data-page]").forEach(b => b.onclick = () => PAGES[b.dataset.page]());
+$("moreBtn").onclick = () => PAGES.story();
+
+/* ---------- Case file ---------- */
+function caseBlock(n){
+  if (!caseFile.length) return "";
+  let txt = caseFile.map((c,i)=>`--- Call ${i+1}: ${c.speaker} with ${n} (${c.title}) ---\n` + c.lines.join("\n")).join("\n\n");
+  if (txt.length > 6000) txt = "…" + txt.slice(-6000);
+  return `
+
+# Earlier calls today (same deal, same client)
+Below is what was said in earlier calls about this deal, including calls with your coworkers. This call CONTINUES that story. Pick up exactly where things stand: reuse the same application number, address, client name, prices, dates and promises. Don't ask for anything ${n} already gave. Don't contradict what anyone said. If a call was cut off, refer to it naturally ("we got cut off", "where were we").
+
+${txt}`;
+}
+
+
+function audio(){ if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+
+/* Incoming-call ringtone: an original marimba phrase, loud and bright like a phone ringer */
+function marimba(a, out, freq, t, vel){
+  const g = a.createGain(); g.connect(out);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vel, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+  [[1, 1], [4, 0.28], [10, 0.06]].forEach(([mult, amp]) => {
+    const o = a.createOscillator(), og = a.createGain();
+    o.type = "sine"; o.frequency.value = freq * mult; og.gain.value = amp;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + 0.6);
+  });
+}
+/* Short "line connects" click+chirp when you answer */
+function connectBlip(){
+  const a = audio(), t = a.currentTime;
+  const o = a.createOscillator(), g = a.createGain();
+  o.frequency.setValueAtTime(1400, t); o.frequency.exponentialRampToValueAtTime(900, t + 0.08);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 0.14);
+}
+
+function startAmbience(){
+  const a = audio(); const out = a.createGain(); out.gain.value = 0.0; out.connect(a.destination);
+  out.gain.linearRampToValueAtTime(0.18, a.currentTime + 1.5);
+  // room tone: filtered noise
+  const len = a.sampleRate * 2, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+  let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random()*2-1)) / 1.02; d[i] = last * 3.5; }
+  const n = a.createBufferSource(); n.buffer = buf; n.loop = true;
+  const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
+  n.connect(lp); lp.connect(out); n.start();
+  let alive = true;
+  // keyboard clicks
+  const clickBuf = a.createBuffer(1, 600, a.sampleRate), cd = clickBuf.getChannelData(0);
+  for (let i = 0; i < 600; i++) cd[i] = (Math.random()*2-1) * Math.exp(-i/60);
+  const typeRun = () => {
+    if (!alive) return;
+    const count = 4 + Math.floor(Math.random()*14); let t = a.currentTime;
+    for (let i = 0; i < count; i++) {
+      t += 0.07 + Math.random()*0.12;
+      const s = a.createBufferSource(), g = a.createGain(), hp = a.createBiquadFilter();
+      hp.type = "bandpass"; hp.frequency.value = 2200 + Math.random()*1800;
+      g.gain.value = 0.25 + Math.random()*0.25;
+      s.buffer = clickBuf; s.connect(hp); hp.connect(g); g.connect(out); s.start(t);
+    }
+    setTimeout(typeRun, 1500 + Math.random()*5000);
+  };
+  // distant phone ring
+  const farPhone = () => {
+    if (!alive) return;
+    const t = a.currentTime;
+    for (let r = 0; r < 2; r++) {
+      const s = t + r * 3;
+      const o = a.createOscillator(), o2 = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
+      o.frequency.value = 1300; o2.frequency.value = 1550; f.type = "lowpass"; f.frequency.value = 1800;
+      o.connect(g); o2.connect(g); g.connect(f); f.connect(out);
+      g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(0.025, s+0.03); g.gain.setValueAtTime(0.025, s+1); g.gain.linearRampToValueAtTime(0, s+1.05);
+      o.start(s); o2.start(s); o.stop(s+1.1); o2.stop(s+1.1);
+    }
+    setTimeout(farPhone, 20000 + Math.random()*25000);
+  };
+  setTimeout(typeRun, 800); setTimeout(farPhone, 9000 + Math.random()*8000);
+  return () => { alive = false; try { n.stop(); } catch(e){} out.disconnect(); };
+}
+
+
+
+/* ---------- More ringtones (original patterns, not any phone maker's tune) ---------- */
+function bellTone(a, out, t, dur){
+  const g = a.createGain(); g.connect(out); g.gain.value = 0;
+  const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = 22; lg.gain.value = 0.18;
+  lfo.connect(lg); lg.connect(g.gain);
+  [[880, 0.5], [1180, 0.35], [2350, 0.08]].forEach(([f, amp]) => {
+    const o = a.createOscillator(), og = a.createGain(); o.frequency.value = f; og.gain.value = amp;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + dur);
+  });
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.2, t + 0.02);
+  g.gain.setValueAtTime(0.2, t + dur - 0.05); g.gain.linearRampToValueAtTime(0.0001, t + dur);
+  lfo.start(t); lfo.stop(t + dur);
+}
+function startRing(kind = ringKind){
+  if (kind === "none") return () => {};
+  const a = audio(); const out = a.createGain(); out.gain.value = 0.9;
+  const comp = a.createDynamicsCompressor(); out.connect(comp); comp.connect(a.destination);
+  let alive = true, to = null;
+  const N = { G5:784, A5:880, B5:988, C6:1047, D6:1175, E6:1319, F6:1397, G6:1568 };
+  const patterns = {
+    marimba: { gap: 2100, notes: [["G5",0],["D6",0.16],["B5",0.32],["E6",0.48],["D6",0.64],["G6",0.80],["G5",1.04],["D6",1.20],["B5",1.36],["A5",1.52]] },
+    chimes:  { gap: 2600, notes: [["E6",0],["C6",0.3],["D6",0.6],["G5",0.9],["G5",1.5],["D6",1.8],["E6",2.1],["C6",2.4]] },
+  };
+  const play = () => {
+    if (!alive) return;
+    const t = a.currentTime + 0.03;
+    if (kind === "classic") { bellTone(a, out, t, 1.0); bellTone(a, out, t + 1.4, 1.0); to = setTimeout(play, 4200); return; }
+    const p = patterns[kind] || patterns.marimba;
+    p.notes.forEach(([n, d], i) => marimba(a, out, N[n], t + d, i % 2 ? 0.35 : 0.5));
+    to = setTimeout(play, p.gap + (kind === "chimes" ? 600 : 0));
+  };
+  play();
+  return () => { alive = false; clearTimeout(to); try { out.disconnect(); } catch(e){} };
+}
+
+/* ---------- Run: Start → black screen → ring ---------- */
+let wakeLock = null;
+async function keepAwake(){ try { wakeLock = await navigator.wakeLock?.request("screen"); } catch(e){} }
+
+async function prepare(){
+  $("err").hidden = true;
+  try {
+    audio().resume();
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    s.getTracks().forEach(t => t.stop());
+  } catch(e) {
+    $("err").textContent = "Microphone is blocked. Allow the microphone for this page in Settings, then try again.";
+    $("err").hidden = false; return false;
+  }
+  try { if (typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) await DeviceOrientationEvent.requestPermission(); } catch(e){}
+  try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch(e){}
+  await keepAwake();
+  return true;
+}
+
+$("armBtn").onclick = async () => {
+  if (!(await prepare())) return;
+  show("armed");
+  $("armedTxt").textContent = `The phone will be called in ${inWords(delay)}. Don't lock the screen and don't return to the home screen.`;
+  clearTimeout(timer);
+  timer = setTimeout(() => incoming(pick), delay * 1000);
+};
+
+// Tap the black screen 3 times to cancel
+$("armed").onclick = () => {
+  taps++; clearTimeout(tapTimer); tapTimer = setTimeout(() => taps = 0, 900);
+  if (taps >= 3) { taps = 0; reset(); }
+};
+
+function incoming(id){
+  sel = BY_ID[id];
+  $("callerName").textContent = callerFor(sel.who);
+  $("callSub").textContent = "mobile";
+  $("who").classList.remove("live");
+  const slide = answerMode === "slide";
+  $("ringActions").hidden = slide; $("slideActions").hidden = !slide; $("liveActions").hidden = true;
+  resetKnob();
+  show("call");
+  ring = startRing(ringKind);
+}
+
+$("declineBtn").onclick = () => { ring && ring(); ring = null; afterCall(); };
+
+/* Slide to answer */
+const knob = $("knob"), track = $("track");
+function resetKnob(){ knob.style.transition = "none"; knob.style.transform = ""; track.querySelector(".txt").style.opacity = 1; }
+(() => {
+  let x0 = null, max = 0, dx = 0;
+  knob.addEventListener("pointerdown", (e) => { x0 = e.clientX; max = track.clientWidth - knob.offsetWidth - 12; knob.setPointerCapture(e.pointerId); knob.style.transition = "none"; });
+  knob.addEventListener("pointermove", (e) => {
+    if (x0 == null) return;
+    dx = Math.max(0, Math.min(max, e.clientX - x0));
+    knob.style.transform = `translateX(${dx}px)`;
+    track.querySelector(".txt").style.opacity = String(1 - dx / max);
+  });
+  const up = () => {
+    if (x0 == null) return; x0 = null;
+    if (dx >= max * 0.85) { knob.style.transform = `translateX(${max}px)`; $("acceptBtn").onclick(); }
+    else { knob.style.transition = "transform .25s ease"; knob.style.transform = ""; track.querySelector(".txt").style.opacity = 1; }
+    dx = 0;
+  };
+  knob.addEventListener("pointerup", up); knob.addEventListener("pointercancel", up);
+})();
+
+$("acceptBtn").onclick = async () => {
+  ring && ring(); ring = null; connectBlip();
+  $("ringActions").hidden = true; $("slideActions").hidden = true; $("liveActions").hidden = false;
+  $("who").classList.add("live");
+  inCall = true; $("speakerBtn").setAttribute("aria-pressed","true");
+  // Real calls start counting the moment you answer
+  callStart = Date.now();
+  const paint = () => {
+    const t = Math.floor((Date.now() - callStart) / 1000);
+    $("callSub").innerHTML = `<span class="timer">${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}</span>`;
+  };
+  paint(); clearInterval(tick); tick = setInterval(paint, 500);
+  const n = name();
+  const history = caseBlock(n);
+  const first = caseFile.length ? AGAIN[sel.who](n) : sel.first(n);
+  current = { speaker: SPEAKER[sel.who], title: SHORT[sel.id].t, lines: [] };
+  try {
+    conv = await Conversation.startSession({
+      agentId: AGENTS[sel.who],
+      connectionType: "websocket",
+      dynamicVariables: { rep_name: n, first_line: first, brief: sel.brief ? sel.brief(n) : (BRIEF_EXTRA[sel.id] || ""), history: history || " " },
+      onMessage: (m) => {
+        const text = (m && (m.message ?? m.text)) || "";
+        if (!text || !current) return;
+        const who = (m.source === "user" || m.role === "user") ? n : SPEAKER[sel.who].split(" ")[0];
+        current.lines.push(`${who}: ${text}`);
+      },
+      onConnect: () => {
+        setSpeaker($("speakerBtn").getAttribute("aria-pressed") === "true");
+        // Office ambience disabled: the mic picked it up and the agent "heard" it as speech
+      },
+      onDisconnect: () => endCall(false),
+      onError: (m) => { console.error(m); }
+    });
+  } catch(e) {
+    console.error(e);
+    current = null;
+    $("callSub").textContent = "Call failed";
+    setTimeout(afterCall, 1500);
+  }
+};
+
+
+/* ---------- Ear detection + auto-mute ----------
+   Phone at your ear → screen black, mic ON.
+   Lower the phone (talking to the client) → mic MUTED automatically, mute button lights up.
+   Raise it back to your ear → mic ON again. */
+let inCall = false, earSince = 0, awaySince = 0, earSeen = false, manualMute = false;
+function setEar(on){ $("ear").hidden = !on; }
+function setMute(on){
+  $("muteBtn").setAttribute("aria-pressed", on);
+  try { conv?.setMicMuted?.(on); } catch(e){}
+}
+addEventListener("deviceorientation", (e) => {
+  if (!inCall || e.beta == null) return;
+  const b = Math.abs(e.beta), g = Math.abs(e.gamma || 0);
+  // At the ear the phone is upright AND tilted sideways; looking at it, it's square to you.
+  const atEar = b > 45 && b < 135 && g > 28;
+  const now = Date.now();
+  if (atEar) {
+    awaySince = 0;
+    if (!earSince) earSince = now;
+    if (now - earSince > 350) { setEar(true); earSeen = true; if (!manualMute) setMute(false); }
+  } else {
+    earSince = 0; setEar(false);
+    if (!awaySince) awaySince = now;
+    if (earSeen && now - awaySince > 600) setMute(true);
+  }
+});
+// Backup: double-tap the name to black out manually; tap the black screen to wake it.
+let lastTap = 0;
+$("who").addEventListener("click", () => { if (!inCall) return; const t = Date.now(); if (t - lastTap < 350) setEar(true); lastTap = t; });
+$("ear").addEventListener("click", () => { setEar(false); earSince = Date.now() + 1500; });
+
+$("muteBtn").onclick = () => {
+  const on = $("muteBtn").getAttribute("aria-pressed") !== "true";
+  manualMute = on;
+  if (!on) earSeen = false;   // tapping it off keeps the mic open until you raise the phone again
+  setMute(on);
+};
+/* Speaker: lit = loud (speakerphone). Tap to turn it off = quiet, like holding it to your ear. */
+function setSpeaker(on){
+  $("speakerBtn").setAttribute("aria-pressed", on);
+  try { conv?.setVolume?.({ volume: on ? 1 : 0.22 }); } catch(e){}
+}
+$("speakerBtn").onclick = () => setSpeaker($("speakerBtn").getAttribute("aria-pressed") !== "true");
+
+$("endBtn").onclick = () => endCall(true);
+
+/* Save what was said so the next call continues from it */
+function storeCurrent(manual){
+  const c = current; current = null;
+  if (!c || !c.lines.length) return;
+  c.lines.push(manual ? `(${name()} hung up here)` : "(call ended here)");
+  caseFile.push(c); caseFile = caseFile.slice(-6); store.set("ol_case5", caseFile); store.set("ol_case_at", Date.now());
+}
+
+let ending = false;
+async function endCall(manual){
+  if (ending || (!current && !conv)) return;
+  ending = true;
+  clearInterval(tick); tick = null;
+  ambience && ambience(); ambience = null;
+  const c = conv; conv = null;
+  if (manual && c) { try { await c.endSession(); } catch(e){} }
+  storeCurrent(manual);
+  $("callSub").textContent = "Call Ended";
+  setTimeout(() => { ending = false; afterCall(); }, 1100);
+}
+
+
+/* ---------- After a call: back to Home, already set to the logical next caller ---------- */
+function afterCall(){
+  inCall = false; setEar(false); earSeen = false; manualMute = false; earSince = 0; awaySince = 0;
+  if (sel) {
+    lastId = sel.id; store.set("ol_last", lastId);
+    if (caseFile.length && NEXT[sel.id]) { pick = NEXT[sel.id]; store.set("ol_pick", pick); }
+  }
+  $("muteBtn").setAttribute("aria-pressed", "false");
+  reset();
+}
+
+function reset(){
+  clearTimeout(timer); ring && ring(); ring = null;
+  try { wakeLock?.release(); } catch(e){} wakeLock = null;
+  renderHome();
+  show("setup");
+}
+
+renderHome();
+show("setup");
+if (!(navigator.standalone || matchMedia("(display-mode: standalone)").matches)) $("a2hs").hidden = false;
+
+</script>
+</body>
+</html>
