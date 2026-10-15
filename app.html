@@ -88,6 +88,24 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 @keyframes shine{from{background-position:100% 0}to{background-position:-150% 0}}
 .knob{position:absolute;left:6px;top:6px;width:64px;height:64px;border-radius:50%;background:#fff;display:grid;place-items:center;will-change:transform}
 .knob svg{width:30px;height:30px;fill:#34c759}
+
+/* Phone-style home screen shown after a call (double-tap to return to the app) */
+#spring{background:radial-gradient(120% 80% at 20% 10%,#5b6cff 0%,transparent 55%),radial-gradient(120% 90% at 90% 90%,#ff7a59 0%,transparent 55%),linear-gradient(160deg,#2b2f77,#7a3b6f 60%,#c2554a);
+  color:#fff;padding:calc(env(safe-area-inset-top,0px) + 6px) 22px calc(env(safe-area-inset-bottom,0px) + 10px);font-family:-apple-system,"SF Pro Text",system-ui,sans-serif}
+#spring .sb{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:600;height:30px;padding:0 8px}
+#spring .sb .r{display:flex;gap:6px;align-items:center}
+#spring .sb svg{height:12px;fill:#fff}
+#spring .apps{margin-top:22px;display:grid;grid-template-columns:repeat(4,1fr);row-gap:22px;justify-items:center}
+#spring .app{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;letter-spacing:.01em;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+#spring .ico{width:62px;height:62px;border-radius:15px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+#spring .ico svg{width:32px;height:32px;fill:#fff}
+#spring .ico.cal{background:#fff;color:#111;flex-direction:column;gap:0;line-height:1}
+#spring .ico.cal small{font-size:9px;font-weight:600;color:#e5484d;text-transform:uppercase}
+#spring .ico.cal b{font-size:28px;font-weight:300}
+#spring .dots{margin-top:auto;display:flex;justify-content:center;gap:8px;padding-bottom:14px}
+#spring .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
+#spring .dots i:first-child{background:#fff}
+#spring .dock{display:grid;grid-template-columns:repeat(4,1fr);justify-items:center;padding:14px 10px;border-radius:30px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 </style>
 <style>
 /* Call — native iOS call screen look */
@@ -147,7 +165,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v7</div>
+  <div class="ver">Office Line v8</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -158,6 +176,14 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
     <span></span>
   </div>
   <div id="subBody"></div>
+</section>
+
+<!-- PHONE HOME SCREEN (after a call; double-tap to return to the app) -->
+<section id="spring" class="screen" hidden>
+  <div class="sb"><span id="sbTime">12:00</span><span class="r"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>5G<svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="15" height="8" rx="2"/><rect x="24" y="4" width="2" height="4" rx="1" opacity=".5"/></svg></span></div>
+  <div class="apps"><div class="app"><span class="ico cal"><small id="sbDay">Thu</small><b id="sbDate">15</b></span>Calendar</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#f6a04d,#e2557a)"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm1 13h14l-4.5-6-3.5 4.5-2.5-3L5 17z"/></svg></span>Photos</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#8e9aaf,#4b5566)"><svg viewBox="0 0 24 24"><path d="M9 4l-1.8 2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 110 9 4.5 4.5 0 010-9z"/></svg></span>Camera</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#4aa3ff,#2563eb)"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3V5zm2 2v.5l7 4.5 7-4.5V7H5zm14 2.8l-7 4.5-7-4.5V17h14V9.8z"/></svg></span>Mail</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#ffd76a,#f5b301)"><svg viewBox="0 0 24 24"><path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zm2 5v2h10V8H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z"/></svg></span>Notes</div><div class="app"><span class="ico" style="background:#1c1c1e"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 10.4l3.5 2.1-.8 1.3L11 13V7h2v5.4z"/></svg></span>Clock</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#6cc4ff,#2f7de1)"><svg viewBox="0 0 24 24"><path d="M19 18H7a5 5 0 01-.6-10 6 6 0 0111.4 2A4 4 0 0119 18z"/></svg></span>Weather</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#7bd88f,#2f9e5a)"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 00-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg></span>Maps</div><div class="app"><span class="ico" style="background:#3a3a3c"><svg viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm1 3v4h10V5H7zm0 7v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v6h2v-6h-2zm-8 4v2h2v-2H7zm4 0v2h2v-2h-2z"/></svg></span>Calculator</div><div class="app"><span class="ico" style="background:#111"><svg viewBox="0 0 24 24"><path d="M4 6h15a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2zm12 6a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM5 3h11v2H5z"/></svg></span>Wallet</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#5ab0ff,#3a7bd5)"><svg viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h5l2 2h7a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg></span>Files</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#59c3ff,#2d6fe0)"><svg viewBox="0 0 24 24"><path d="M7 7V6a5 5 0 0110 0v1h3l-1 14H5L4 7h3zm2 0h6V6a3 3 0 00-6 0v1z"/></svg></span>Store</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#ff6b81,#e0344f)"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1011 18V8h6V3H9z"/></svg></span>Music</div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#9aa0a6,#5f6368)"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 000-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 00-1.7-1L15 3h-4l-.4 2.9c-.6.2-1.2.6-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 000 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.8 1.7 1L11 21h4l.4-2.9c.6-.2 1.2-.6 1.7-1l2.5 1 2-3.5-2.2-1.6zM13 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z"/></svg></span>Settings</div></div>
+  <div class="dots"><i></i><i></i><i></i></div>
+  <div class="dock"><div class="app"><span class="ico" style="background:linear-gradient(135deg,#5fe07a,#22b14c)"><svg viewBox="0 0 24 24"><path d="M20 15.4c-1.2 0-2.4-.2-3.5-.6a1 1 0 00-1 .3l-1.6 2c-2.8-1.4-5.5-3.9-6.9-6.9l2-1.6c.3-.3.4-.7.2-1-.4-1.1-.6-2.3-.6-3.5 0-.6-.4-1-1-1H4.2C3.6 3 3 3.2 3 4c0 9.3 7.7 17 17 17 .7 0 1-.6 1-1.2v-3.4c0-.6-.4-1-1-1z"/></svg></span></div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#5ab0ff,#1f6fe5)"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm6.9 6h-3a15 15 0 00-1.3-4A8 8 0 0118.9 8zM12 4c.9 1.2 1.6 2.5 2 4h-4c.4-1.5 1.1-2.8 2-4zM4.3 14a8 8 0 010-4h3.4a16 16 0 000 4H4.3zm.8 2h3a15 15 0 001.3 4A8 8 0 015.1 16zm3-8h-3a8 8 0 014.3-4c-.6 1.2-1 2.6-1.3 4zM12 20c-.9-1.2-1.6-2.5-2-4h4c-.4 1.5-1.1 2.8-2 4zm2.3-6H9.7a14 14 0 010-4h4.6a14 14 0 010 4zm.3 6c.6-1.2 1-2.6 1.3-4h3a8 8 0 01-4.3 4zm1.7-6a16 16 0 000-4h3.4a8 8 0 010 4h-3.4z"/></svg></span></div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#5fe07a,#22b14c)"><svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.4 6.1-.2 1.4-.8 2.7-1.8 3.7 1.9-.1 3.6-.8 4.9-1.9 1.1.3 2.3.5 3.5.5 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg></span></div><div class="app"><span class="ico" style="background:linear-gradient(135deg,#ff8a65,#e8505b)"><svg viewBox="0 0 24 24"><path d="M9 3v11.6A3.5 3.5 0 1011 18V8h6V3H9z"/></svg></span></div></div>
 </section>
 
 <!-- ARMED (black) -->
@@ -342,7 +368,7 @@ let timer = null, conv = null, ctx = null, ring = null, ambience = null, callSta
 const name = () => repName || "Dan";
 const callerFor = (who) => callerNames[who] || DEFAULT_CALLER[who];
 const show = (id) => {
-  ["setup","sub","armed","call"].forEach(s => $(s).hidden = s !== id);
+  ["setup","sub","armed","call","spring"].forEach(s => $(s).hidden = s !== id);
   const light = id === "setup" || id === "sub";
   document.querySelector('meta[name="theme-color"]').content = light ? "#f2f2f7" : "#000000";
   document.body.style.background = light ? "#f2f2f7" : "#000";
@@ -755,8 +781,24 @@ function afterCall(){
     }
   }
   $("muteBtn").setAttribute("aria-pressed", "false");
-  reset();
+  reset(); showSpring();
 }
+
+
+/* ---------- Phone home screen after a call ---------- */
+let springTick = null, springTap = 0;
+function paintSpring(){
+  const d = new Date();
+  $("sbTime").textContent = d.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" }).replace(/\s?[AP]M/i, "");
+  $("sbDay").textContent = d.toLocaleDateString("en-US", { weekday:"short" });
+  $("sbDate").textContent = d.getDate();
+}
+function showSpring(){ paintSpring(); clearInterval(springTick); springTick = setInterval(paintSpring, 10000); show("spring"); }
+$("spring").addEventListener("click", () => {
+  const t = Date.now();
+  if (t - springTap < 400) { springTap = 0; clearInterval(springTick); renderHome(); show("setup"); }
+  else springTap = t;
+});
 
 function reset(){
   clearTimeout(timer); ring && ring(); ring = null;
