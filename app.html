@@ -280,27 +280,62 @@ const SCENARIOS = [
   { id:"intake", who:"sarah", caller:"Office", initial:"O", title:"Office · new application",
     desc:"Asks for application #, address, scope, photos",
     first:(n)=>`Hey ${n}, it's Sarah. You're at that appointment, right? I need the details to start the file.`,
-    brief:(n)=>`You need the details to open a file on the job ${n} is at right now: the application number, the property address and what the client wants done. Confirm details briefly as you type. Ask for photos of the job once. Mention once that underwriting has been tough lately so you can't promise anything.` },
+    brief:(n)=>`# How this call goes
+1. You open: you need the details to start the file on the job he's at.
+2. Ask one thing at a time: the application number, then the address, then what the client wants done. Repeat each back briefly, like you're typing it in ("four five six two, got it").
+3. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+4. Once you have it, ask once for photos of the job.
+5. Mention once, casually, that underwriting's been tough lately so you can't promise anything.
+6. Then keep the line open: ask how it's going with the client.` },
   { id:"denied", who:"sarah", caller:"Office", initial:"O", title:"Office · not approved",
     desc:"Came back denied — you fight for the client",
     first:(n)=>`${n}, hey. So... I got the answer back on that application. You're not gonna love it.`,
-    brief:(n)=>`The application ${n} sent earlier came back not approved as submitted. Start firm: it's underwriting's call, not yours. Push back two or three times, each time with a different reason, never repeating yourself. Once he has pushed a few times with real reasons (the client really needs it, they're serious, it's urgent), COMPROMISE: stop saying it's denied and give him a concrete plan, specific and practical, in your own words. For example: have the client send their two most recent pay stubs or proof of income, a copy of the signed agreement and a few photos of the job; you'll resubmit it today as a reconsideration and ask underwriting for a manual review; if they still won't approve it now, the file can stay open and be re-run in a few weeks, so the client can wait rather than lose it. Give the steps one or two at a time, let him react, and confirm what he'll send you. Once you've moved to the plan, don't go back to "it's denied".` },
+    brief:(n)=>`# How this call goes
+1. You open with the news: the application came back not approved.
+2. If he asks why, keep it general and human ("underwriting said no as submitted, that's all I've got").
+3. He'll push. Push back two or three times, each time a different reason, never repeating yourself. If he jokes ("I don't know the word no"), laugh it off ("Ha, I know you don't").
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. Once he's pushed with real reasons, COMPROMISE: give him a concrete plan, one or two steps at a time. For example: have the client send their two latest pay stubs or proof of income, a copy of the signed agreement and a few photos; you'll resubmit it today and ask for a manual review; if they still won't approve it now, the file stays open and can be re-run in a few weeks so the client can wait instead of losing it.
+6. Confirm what he'll send you. Once you've moved to the plan, don't go back to "it's denied".` },
   { id:"schedule", who:"sarah", caller:"Office", initial:"O", title:"Office · calendar is full",
     desc:"Next week is packed — you squeeze them in",
     first:(n)=>`${n}, quick one, don't promise that client any dates. Next week is completely slammed.`,
-    brief:(n)=>`Next week's install calendar is full. Mention a couple of specific jobs in the way. If he fights for his client with good reasons, find a tight slot that only works if something else goes right, and say that once.` },
+    brief:(n)=>`# How this call goes
+1. You open: don't promise the client any dates, next week is completely slammed.
+2. If he asks, mention a couple of specific jobs in the way (make them up, keep them consistent).
+3. He'll fight for his client. Push back once or twice with different reasons.
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. If he makes a good case, find a tight slot that only works if something else goes right ("if Carlos finishes Tuesday, I can squeeze you in Wednesday morning"). Say the condition once.
+6. Confirm the slot and ask if the client can do it.` },
   { id:"price", who:"sarah", caller:"Office", initial:"O", title:"Office · supplier price jump",
     desc:"Material costs up — you hold the old quote",
     first:(n)=>`Hey ${n}, heads up before you quote anything. Supplier just sent new pricing and it's up. A lot.`,
-    brief:(n)=>`The supplier just raised material prices, so the old quote no longer covers the job. Push back on honoring it. If he makes a strong case, agree to fight for the old number on the condition that the client signs today.` },
+    brief:(n)=>`# How this call goes
+1. You open: heads up, the supplier just sent new pricing and it's up a lot.
+2. If he asks, say the old quote doesn't cover the materials anymore.
+3. He'll push to keep the old price. Push back once or twice with different reasons.
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. If he makes a strong case, agree to fight for the old number on one condition: the client signs today. Say it once.
+6. Ask him to let you know when it's signed.` },
   { id:"crew", who:"sarah", caller:"Office", initial:"O", title:"Office · crew opened up",
     desc:"Earlier start available, others want it",
     first:(n)=>`${n}, you got a sec? A job just pushed and I've got a crew opening up earlier than planned.`,
-    brief:(n)=>`A job got pushed and a crew is free earlier than planned, but other reps want the slot too. Make him convince you his client should get it; if he does, it's his as long as the client commits now.` },
+    brief:(n)=>`# How this call goes
+1. You open: a job got pushed and you've got a crew free earlier than planned.
+2. Tell him other reps want the slot too.
+3. Make him convince you his client should get it. Push back once.
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. If he does, it's his as long as the client commits now. Say it once.
+6. Ask him to confirm with the client while you hold it.` },
   { id:"busy", who:"sarah", caller:"Office", initial:"O", title:"Office · where are you?",
     desc:"Quick check-in, packed day, next appt waiting",
     first:(n)=>`${n}! Where are you? Your four o'clock already called asking if you're still coming.`,
-    brief:(n)=>`Quick, hurried check-in: where is he, how long will he be, his next appointment is already waiting, and people keep asking for him by name. Keep it short and get off the phone.` },
+    brief:(n)=>`# How this call goes
+1. You open hurried: where is he? His next appointment already called asking.
+2. Ask how long he'll be. React to his answer like a busy coworker.
+3. Mention people keep asking for him by name today.
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. Keep it quick, then keep the line open (ask if he needs anything before he heads over).` },
   { id:"manager", who:"dave", caller:"Dave", initial:"D", title:"Dave · manager approval",
     desc:"You ask for the special discount",
     first:(n)=>`${n}, it's Dave. Sarah said you needed me?`,
@@ -331,10 +366,22 @@ const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount 
 SCENARIOS.unshift(
   { id:"prev_intake", who:"sarah",
     first:(n)=>`Hey ${n}, it's Sarah. Quick update on that client from this morning. It came back in the system... they didn't get approved.`,
-    brief:(n)=>`Two things on this call. First, the update you opened with: the client ${n} saw earlier today did not get approved. Don't invent a name, address or amount for them; if ${n} asks why, keep it general (underwriting said no as submitted) and say there's not much you can do on that one right now. React naturally to what he says about it. Second, once that's covered, ask about the client he's with now: he'll give you some background (who they are, what they want done, the address, the situation). Take what he says, confirm the key details briefly as if typing them in, ask anything important he left out, and ask once for photos of the job. Don't promise anything about the new client yet.` },
+    brief:(n)=>`# How this call goes
+1. You open with the update: the client he saw earlier today didn't get approved.
+2. If he asks why, keep it general ("underwriting said no as submitted"). React naturally to what he says; there's not much you can do on that one right now.
+3. Then switch: "Okay, so who are you with now?" He'll give you some background on the client he's with.
+4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+5. Repeat the key details back briefly, as if typing them in, ask anything important he left out, and ask once for photos.
+6. Don't promise anything about the new client yet. Keep the line open.` },
   { id:"budget", who:"sarah",
     first:(n)=>`${n}, it's Sarah again. So I put the new one in... and there's no budget left in that area right now.`,
-    brief:(n)=>`You're calling about the client ${n} is with now, the one he gave you details for on the last call (use those details; don't invent new ones). The program budget for that area is used up for now, so it can't go through as is. When ${n} argues, push back a little, each time with a different, specific reason (the area's allocation is spent, others are already waiting, it resets later). After he's argued a bit, ask him: "Is this something urgent for them?" Listen to his answer. Then soften and say you'll try again: you'll resubmit it and push for it, no promises, and you'll let him know. Don't say you'll call back to end the call; keep the line open by asking what else he needs.` }
+    brief:(n)=>`# How this call goes
+1. You open: you put the new client in, and there's no budget left in that area right now.
+2. Use the details he gave you on the last call for this client. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
+3. He'll argue. Push back a little, each time with a different, specific reason (the area's allocation is spent, others are already waiting, it resets later). If he jokes ("I don't know the word no"), laugh it off.
+4. After he's argued a bit, ask him: "Is this something urgent for them?"
+5. Listen to his answer, then soften: you'll try again, resubmit it and push for it, no promises.
+6. Keep the line open: ask what else he needs.` }
 );
 const DAY = ["prev_intake","budget","client"];
 const BY_ID = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
