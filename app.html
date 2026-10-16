@@ -534,7 +534,7 @@ let delay = store.get("ol_delay6", 10);
 let ringKind = store.get("ol_ring", "marimba");
 let answerMode = store.get("ol_answer", "buttons");
 let callerNames = store.get("ol_callers2", {});
-let repName = store.get("ol_name2", "Eden");
+let repName = store.get("ol_name2", "Dan");
 let caseFile = store.get("ol_case7", []);
 let dayStep = store.get("ol_day7", 0);
 if (!store.get("ol_v7", false)) { pick = DAY[0]; dayStep = 0; store.set("ol_pick", pick); store.set("ol_day7", 0); store.set("ol_v7", true); }
@@ -542,7 +542,7 @@ if (caseFile.length && Date.now() - store.get("ol_case_at", 0) > 4 * 3600e3) { c
 let timer = null, conv = null, ctx = null, ring = null, ambience = null, callStart = 0, tick = null,
     taps = 0, tapTimer = null, current = null, sel = null, lastId = store.get("ol_last", null);
 
-const name = () => repName || "Eden";
+const name = () => repName || "Dan";
 const callerFor = (who) => callerNames[who] || DEFAULT_CALLER[who];
 const show = (id) => {
   ["setup","sub","armed","call","spring"].forEach(s => $(s).hidden = s !== id);
@@ -612,7 +612,7 @@ const PAGES = {
     openPage("Contact", html, null, () => {
       ["sarah","dave","tony","client","maria"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
       store.set("ol_callers2", callerNames);
-      repName = $("repName").value.trim() || "Eden"; store.set("ol_name2", repName);
+      repName = $("repName").value.trim() || "Dan"; store.set("ol_name2", repName);
     });
   },
   ringtone(){
