@@ -515,7 +515,7 @@ const SHORT = {
 /* ---------- Options ---------- */
 const TIMES = [[3,"3 Seconds Later"],[10,"10 Seconds Later"],[30,"30 Seconds Later"],[60,"1 Minute Later"],[120,"2 Minutes Later"],
                [300,"5 Minutes Later"],[480,"8 Minutes Later"],[720,"12 Minutes Later"],[1200,"20 Minutes Later"],[1800,"30 Minutes Later"],[3600,"1 Hour Later"]];
-const RINGS = [["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
+const RINGS = [["smart","Smartphone"],["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
 const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client", maria:"Maria · client", tony:"Tony · warehouse" };
 /* What logically comes after each call: Home is pre-set to it so you just press Start */
 const NEXT = { approved:"busy", intake:"denied", denied:"manager", schedule:"manager", warehouse:"busy", crew:"busy", busy:"client", manager:"client", client:"busy" };
@@ -712,6 +712,19 @@ function marimba(a, out, freq, t, vel){
     o.connect(og); og.connect(g); o.start(t); o.stop(t + 0.6);
   });
 }
+/* Soft glassy bell (modern smartphone feel): rounded attack, long-ish tail */
+function glass(a, out, freq, t, vel){
+  const g = a.createGain(); g.connect(out);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(vel, t + 0.018);
+  g.gain.exponentialRampToValueAtTime(vel * 0.35, t + 0.25);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+  [[1, 1, "sine"], [2, 0.22, "sine"], [3.01, 0.08, "triangle"]].forEach(([mult, amp, type]) => {
+    const o = a.createOscillator(), og = a.createGain();
+    o.type = type; o.frequency.value = freq * mult; og.gain.value = amp;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.15);
+  });
+}
 /* Short "line connects" click+chirp when you answer */
 function connectBlip(){
   const a = audio(), t = a.currentTime;
@@ -785,7 +798,7 @@ function startRing(kind = ringKind){
   const a = audio(); const out = a.createGain(); out.gain.value = 0.9;
   const comp = a.createDynamicsCompressor(); out.connect(comp); comp.connect(a.destination);
   let alive = true, to = null;
-  const N = { G5:784, A5:880, B5:988, C6:1047, D6:1175, E6:1319, F6:1397, G6:1568 };
+  const N = { E5:659, F5:698, G5:784, A5:880, B5:988, C6:1047, D6:1175, E6:1319, F6:1397, G6:1568, A6:1760, B6:1976 };
   const patterns = {
     marimba: { gap: 2100, notes: [["G5",0],["D6",0.16],["B5",0.32],["E6",0.48],["D6",0.64],["G6",0.80],["G5",1.04],["D6",1.20],["B5",1.36],["A5",1.52]] },
     chimes:  { gap: 2600, notes: [["E6",0],["C6",0.3],["D6",0.6],["G5",0.9],["G5",1.5],["D6",1.8],["E6",2.1],["C6",2.4]] },
@@ -793,6 +806,14 @@ function startRing(kind = ringKind){
   const play = () => {
     if (!alive) return;
     const t = a.currentTime + 0.03;
+    if (kind === "smart") {
+      // Original phrase in a modern smartphone style: up, settle, answer
+      const ph = [["E6",0],["G6",0.17],["B6",0.34],["A6",0.6],["G6",0.86],["E6",1.12],["G6",1.29],["D6",1.46],["E6",1.72]];
+      const wet = a.createGain(); wet.gain.value = 0.28; const dl = a.createDelay(); dl.delayTime.value = 0.19;
+      const fb = a.createGain(); fb.gain.value = 0.32; dl.connect(fb); fb.connect(dl); wet.connect(dl); dl.connect(out);
+      ph.forEach(([n, d], i) => { glass(a, out, N[n], t + d, i === 0 ? 0.42 : 0.34); glass(a, wet, N[n], t + d, 0.3); });
+      to = setTimeout(play, 3300); return;
+    }
     if (kind === "classic") { bellTone(a, out, t, 1.0); bellTone(a, out, t + 1.4, 1.0); to = setTimeout(play, 4200); return; }
     const p = patterns[kind] || patterns.marimba;
     p.notes.forEach(([n, d], i) => marimba(a, out, N[n], t + d, i % 2 ? 0.35 : 0.5));
