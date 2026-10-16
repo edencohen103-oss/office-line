@@ -388,14 +388,10 @@ You're calling ${n} because ${who} just came back APPROVED. You're genuinely exc
 - APR: ${+a.apr} percent
 - Monthly payment: about ${money(Math.round(m))} a month
 
-# How this call goes
-1. Open excited: it's approved. Let ${n} react.
-2. Read him the terms clearly, one at a time, so he can repeat them to the client: the amount, then the term in years, then the APR, then the monthly payment. Say numbers naturally ("thirty-two thousand five hundred", "seven point nine nine percent").
-3. Compliment ${n} warmly and specifically, once or twice, not over the top: he really looks out for his clients, he put the file together right, he fought for this one, this is exactly why clients ask for him by name.
-4. If he asks you to repeat anything, repeat the exact same numbers.
-5. If he asks about anything NOT listed above (fees, down payment, first payment date, lender name), don't make anything up: say it's all in the approval paperwork and you'll email it over right now.
-6. Next step: you'll send the approval paperwork so the client can review and sign. Ask if he wants it to his email or straight to the client.
-7. Wrap up happy: "Congrats, ${n}. Go take care of them."`;
+# Situation
+Let him react to the news, then give him the terms clearly, one at a time, so he can pass them on: amount, term, APR, monthly payment. Say numbers naturally. If he asks you to repeat, repeat the exact same numbers. Anything not listed (fees, down payment, first payment date, lender) is in the approval paperwork, which you'll email; never make it up.
+Somewhere in the call, in your own words and only once or twice, give him real credit: he looks out for his clients, he put the file together right, this is why people ask for him. Mean it, don't gush.
+Then sort out where to send the paperwork. Let the conversation flow; don't follow a fixed order.`;
 }
 
 const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install.", zip:"You are calling to say you want to go ahead with the project." };
@@ -419,6 +415,88 @@ SCENARIOS.unshift(
 5. Listen to his answer, then soften: you'll try again, resubmit it and push for it, no promises.
 6. Keep the line open: ask what else he needs.` }
 );
+/* ---------- Looser, less predictable versions of Sarah's calls ----------
+   Each call opens with one of several lines, and the brief gives her the situation and goal, not a script. */
+const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+const LOOSE = `Don't follow a fixed order. Let it flow from what he says, and let it go somewhere slightly different every time.
+Whatever ${"${n}"} tells you (names, addresses, amounts, what the client wants), use it exactly. His details are always right; never invent different ones.`;
+const SARAH = {
+  prev_intake: {
+    first: [
+      (n)=>`Hey, it's Sarah. So, um... that one from this morning came back. Not approved.`,
+      (n)=>`${n}. Sarah. Bad news on your morning client, it didn't go through.`,
+      (n)=>`Hi, quick one... the file from earlier today got declined.`],
+    brief: (n)=>`# Situation
+The client ${n} saw earlier today wasn't approved. You don't have much detail and there's nothing to do on it right now. Then you move on to the client he's with now: get the background from him, repeat the key bits back like you're typing, ask about anything important he skipped, ask for photos once. Don't promise anything on the new one.
+${LOOSE.replace("${n}", n)}` },
+  budget: {
+    first: [
+      (n)=>`Hey, it's Sarah again. So I put the new one in... heads up, that area's getting really tight.`,
+      (n)=>`${n}, me again. Okay so, I entered it, but they've been closing areas without warning lately and yours is on the edge.`,
+      (n)=>`Okay, it's in. But honestly? I don't know how long that area stays open.`],
+    brief: (n)=>`# Situation
+You entered the new client. The marketing budget for areas runs out and areas get closed with no warning, and nobody, including you, knows when this one will close. Never say it's already closed or out of budget, and never give a date: you genuinely don't know. The point is: if the client wants it, getting the file moving now is safer than waiting. Ask whether it's urgent for them. If it is, you'll push it through today. Use details from his earlier call for this client.
+${LOOSE.replace("${n}", n)}` },
+  intake: {
+    first: [
+      (n)=>`Hey, it's Sarah. You at that appointment? I need stuff to start the file.`,
+      (n)=>`${n}, hi, okay, I've got a blank file open for you. Talk to me.`,
+      (n)=>`Hey, Sarah. Are you with the new one? Gimme the details.`],
+    brief: (n)=>`# Situation
+You need the details to start the file on the job he's at: application number, address, what the client wants. Repeat things back like you're typing. Ask for photos once. Underwriting has been tough lately so you don't promise anything. Then ask how it's going.
+${LOOSE.replace("${n}", n)}` },
+  denied: {
+    first: [
+      (n)=>`${n}... hey. So I got the answer on that application. You're not gonna like it.`,
+      (n)=>`Hey, it's Sarah. Um, it came back. Not approved, as submitted.`,
+      (n)=>`Okay so, bad news, that one got kicked back.`],
+    brief: (n)=>`# Situation
+The application came back not approved as submitted. You only have the general reason. He'll fight for the client. Resist a little with different, believable reasons, then give him a real path: updated income documents, the signed agreement and photos, you resubmit today for manual review, and if it still doesn't go, the file stays open to re-run in a few weeks. Once you're on the plan, don't go back to the denial.
+${LOOSE.replace("${n}", n)}` },
+  schedule: {
+    first: [
+      (n)=>`Hey, quick thing, don't give that client any dates yet. Next week's a mess.`,
+      (n)=>`${n}, before you promise anything, the calendar's completely full next week.`,
+      (n)=>`It's Sarah. Do not, I repeat, do not promise a start date.`],
+    brief: (n)=>`# Situation
+Next week is packed. Name a job or two in the way if he asks. He'll fight for his client. If his case is good, find a tight slot that depends on something else going right, say the condition once, and ask if the client can do it.
+${LOOSE.replace("${n}", n)}` },
+  price: {
+    first: [
+      (n)=>`Hey, heads up before you quote. Supplier sent new pricing. It's up.`,
+      (n)=>`${n}, did you quote yet? Because material prices just jumped.`,
+      (n)=>`Ugh, okay, so the supplier just raised everything.`],
+    brief: (n)=>`# Situation
+The supplier raised prices and the old quote doesn't cover materials anymore. He'll want to hold the old price. If he makes a strong case, you'll fight for the old number if the client signs today. Ask him to tell you when it's signed.
+${LOOSE.replace("${n}", n)}` },
+  crew: {
+    first: [
+      (n)=>`You got a sec? A job just pushed and I've got a crew free earlier.`,
+      (n)=>`${n}, hey, a crew just opened up. Everybody's gonna want it.`,
+      (n)=>`Okay, so, weird luck, I've got an early slot open.`],
+    brief: (n)=>`# Situation
+A job got pushed and a crew is free earlier than planned. Other reps want it. Make him convince you; if he does, it's his if the client commits now. Ask him to confirm while you hold it.
+${LOOSE.replace("${n}", n)}` },
+  busy: {
+    first: [
+      (n)=>`${n}! Where are you? Your next one already called.`,
+      (n)=>`Hey, you still at that appointment? Your four o'clock's asking about you.`,
+      (n)=>`Sarah. How much longer are you gonna be?`],
+    brief: (n)=>`# Situation
+He's running long and his next appointment called asking about him. Ask how long he'll be, react like a busy coworker, keep it quick, then keep the line open.
+${LOOSE.replace("${n}", n)}` },
+  approved: {
+    first: [
+      (n)=>`${n}! It's Sarah. Okay, you're gonna love this... it came back approved.`,
+      (n)=>`Hey! Are you still with them? Because it's approved.`,
+      (n)=>`Okay, good news for once. Approved.`] },
+};
+Object.entries(SARAH).forEach(([id, v]) => {
+  const sc = SCENARIOS.find(x => x.id === id); if (!sc) return;
+  sc.first = (n) => pickOne(v.first)(n);
+  if (v.brief) sc.brief = v.brief;
+});
+
 const DAY = ["prev_intake","budget","client"];
 const BY_ID = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
 const SHORT = {
