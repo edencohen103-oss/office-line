@@ -154,6 +154,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 
   <div class="group">
     <button class="row tall" data-page="who"><span class="av" id="whoAv">S</span><span class="lbl"><span id="whoName">Sarah</span><span class="sub2" id="whoDesc"></span></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
+    <button class="row" data-page="approval" id="approvalRow" hidden><span class="lbl">Approved terms</span><span class="val" id="approvalVal"></span><svg class="chev" viewBox="0 0 8 13"><path d="M1 1l5.5 5.5L1 12"/></svg></button>
   </div>
 
   <div class="group">
@@ -336,6 +337,10 @@ const SCENARIOS = [
 3. Mention people keep asking for him by name today.
 4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
 5. Keep it quick, then keep the line open (ask if he needs anything before he heads over).` },
+  { id:"approved", who:"sarah", caller:"Office", initial:"O", title:"Office · approved!",
+    desc:"Sarah calls with the real approved terms",
+    first:(n)=>`${n}! It's Sarah. Okay, you're gonna love this... it came back APPROVED.`,
+    brief:(n)=>approvedBrief(n) },
   { id:"manager", who:"dave", caller:"Dave", initial:"D", title:"Dave · manager approval",
     desc:"You ask for the special discount",
     first:(n)=>`${n}, it's Dave. Sarah said you needed me?`,
@@ -361,6 +366,37 @@ const CLIENT = (n) => `You are Mark Reynolds, a homeowner in California. ${n} so
 - Ask what time the crew arrives tomorrow, whether you need to move the cars or the dog, how long it takes. Mention your wife wants to make sure it's still on.
 - Thank ${n} warmly, say he's been great and you've already told your neighbor about him. Wrap up when he's answered.`;
 
+
+/* ---------- Approved terms (entered by you from the real approval) ---------- */
+let approval = store.get("ol_approval", { client:"", amount:"", years:"", apr:"" });
+const money = (v) => "$" + Number(v).toLocaleString("en-US", { maximumFractionDigits: 0 });
+function monthlyPayment(a){
+  const P = +a.amount, N = Math.round(+a.years * 12), r = +a.apr / 1200;
+  if (!(P > 0) || !(N > 0) || !(r >= 0) || a.apr === "") return null;
+  return r === 0 ? P / N : P * r / (1 - Math.pow(1 + r, -N));
+}
+const approvalReady = () => monthlyPayment(approval) != null;
+function approvedBrief(n){
+  const a = approval, m = monthlyPayment(a);
+  const who = a.client ? `the ${a.client} file` : "the client he's with";
+  return `# This call is GOOD NEWS. Forget "default answer is no" for this one.
+You're calling ${n} because ${who} just came back APPROVED. You're genuinely excited and happy for him.
+
+# The approved terms (these are the REAL numbers, use EXACTLY these, never change, round differently or invent any others)
+- Approved amount: ${money(a.amount)}
+- Term: ${+a.years} years
+- APR: ${+a.apr} percent
+- Monthly payment: about ${money(Math.round(m))} a month
+
+# How this call goes
+1. Open excited: it's approved. Let ${n} react.
+2. Read him the terms clearly, one at a time, so he can repeat them to the client: the amount, then the term in years, then the APR, then the monthly payment. Say numbers naturally ("thirty-two thousand five hundred", "seven point nine nine percent").
+3. Compliment ${n} warmly and specifically, once or twice, not over the top: he really looks out for his clients, he put the file together right, he fought for this one, this is exactly why clients ask for him by name.
+4. If he asks you to repeat anything, repeat the exact same numbers.
+5. If he asks about anything NOT listed above (fees, down payment, first payment date, lender name), don't make anything up: say it's all in the approval paperwork and you'll email it over right now.
+6. Next step: you'll send the approval paperwork so the client can review and sign. Ask if he wants it to his email or straight to the client.
+7. Wrap up happy: "Congrats, ${n}. Go take care of them."`;
+}
 
 const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install.", zip:"You are calling to say you want to go ahead with the project." };
 SCENARIOS.unshift(
@@ -394,6 +430,7 @@ const SHORT = {
   price:    { t:"Prices went up",   d:"You hold the old quote" },
   crew:     { t:"Crew opened up",   d:"Earlier start, others want it" },
   busy:     { t:"Where are you?",   d:"Next appointment is waiting" },
+  approved: { t:"Approved!",        d:"Real approved terms + she praises you" },
   manager:  { t:"Manager approval", d:"You ask Dave for the discount" },
   client:   { t:"Client checking in", d:"Mark asks about tomorrow" },
   zip:      { t:"Maria wants to sign", d:"Her zip code isn't covered anymore" },
@@ -406,7 +443,7 @@ const TIMES = [[3,"3 Seconds Later"],[10,"10 Seconds Later"],[30,"30 Seconds Lat
 const RINGS = [["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
 const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client", maria:"Maria · client" };
 /* What logically comes after each call: Home is pre-set to it so you just press Start */
-const NEXT = { intake:"denied", denied:"manager", schedule:"manager", price:"manager", crew:"busy", busy:"client", manager:"client", client:"busy" };
+const NEXT = { approved:"busy", intake:"denied", denied:"manager", schedule:"manager", price:"manager", crew:"busy", busy:"client", manager:"client", client:"busy" };
 
 /* ---------- State ---------- */
 let pick = store.get("ol_pick", "intake"); if (!BY_ID[pick]) pick = "intake";
@@ -449,6 +486,8 @@ function renderHome(){
   $("ringVal").textContent = RINGS.find(r => r[0] === ringKind)[1];
   $("homeVal").textContent = homeImg ? "Your screenshot" : "Built-in";
   $("answerVal").textContent = answerMode === "slide" ? "Slide" : "Buttons";
+  $("approvalRow").hidden = s.id !== "approved";
+  $("approvalVal").textContent = approvalReady() ? `${money(approval.amount)} · ${+approval.years}y · ${+approval.apr}%` : "Not set";
   $("storyVal").textContent = dayStep >= 0 ? `Call ${dayStep+1} of ${DAY.length}` : "Single call";
 }
 
@@ -471,7 +510,7 @@ const PAGES = {
         `<button class="row tall" data-id="${s.id}"><span class="av ${p}">${INITIAL[p]}</span><span class="lbl">${SHORT[s.id].t}<span class="sub2">${SHORT[s.id].d}</span></span>${s.id === pick && dayStep < 0 ? TICK : ""}</button>`
       ).join("") + `</div>`).join("");
     openPage("Who calls", html, () => {
-      $("subBody").querySelectorAll("[data-id]").forEach(b => b.onclick = () => { pick = b.dataset.id; dayStep = -1; store.set("ol_pick", pick); store.set("ol_day7", -1); goHome(); });
+      $("subBody").querySelectorAll("[data-id]").forEach(b => b.onclick = () => { pick = b.dataset.id; dayStep = -1; store.set("ol_pick", pick); store.set("ol_day7", -1); if (pick === "approved") PAGES.approval(); else goHome(); });
       $("subBody").querySelectorAll("[data-day]").forEach(b => b.onclick = () => { dayStep = +b.dataset.day; pick = DAY[dayStep]; store.set("ol_pick", pick); store.set("ol_day7", dayStep); goHome(); });
     });
   },
@@ -539,6 +578,22 @@ const PAGES = {
         } catch(err) { $("homeErr").textContent = "Couldn't save that image. Try another screenshot."; $("homeErr").hidden = false; }
       };
     });
+  },
+  approval(){
+    const f = (id, label, ph, mode, val) => `<label class="row"><span class="lbl">${label}</span><input id="${id}" type="text" inputmode="${mode}" autocomplete="off" placeholder="${ph}" value="${esc(val ?? "")}" style="text-align:right"></label>`;
+    const html = `<p class="group-note" style="margin-top:14px">Enter the terms exactly as the lender approved them. Sarah reads them out and works out the monthly payment.</p>
+      <div class="group plain">
+        ${f("apClient","Client (optional)","Johnson","text",approval.client)}
+        ${f("apAmount","Approved amount $","32500","decimal",approval.amount)}
+        ${f("apYears","Term (years)","15","decimal",approval.years)}
+        ${f("apApr","APR %","7.99","decimal",approval.apr)}
+      </div>
+      <p class="group-note" id="apCalc"></p>`;
+    const read = () => ({ client:$("apClient").value.trim(), amount:$("apAmount").value.replace(/[^0-9.]/g,""), years:$("apYears").value.replace(/[^0-9.]/g,""), apr:$("apApr").value.replace(/[^0-9.]/g,"") });
+    const calc = () => { const m = monthlyPayment(read()); $("apCalc").textContent = m != null ? `Monthly payment: about ${money(Math.round(m))}` : "Fill in amount, years and APR."; };
+    openPage("Approved terms", html, () => {
+      ["apClient","apAmount","apYears","apApr"].forEach(id => $(id).oninput = calc); calc();
+    }, () => { approval = read(); store.set("ol_approval", approval); });
   },
   story(){
     const html = `<p class="group-note" style="margin-top:14px">The calls of one deal, in order. Each office call remembers what you said in the earlier ones. After a call ends, the next one is ready: just press Start.</p>
@@ -693,6 +748,7 @@ async function prepare(){
 }
 
 $("armBtn").onclick = async () => {
+  if (pick === "approved" && !approvalReady()) { PAGES.approval(); return; }
   if (!(await prepare())) return;
   if (dayStep <= 0) { caseFile = []; store.set("ol_case7", []); }
   if (dayStep === 0) store.set("ol_prev_call", null);
