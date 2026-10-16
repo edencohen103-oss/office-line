@@ -52,7 +52,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .row .sub2{display:block;font-size:13px;color:var(--muted);margin-top:1px}
 .row.tall{min-height:58px;padding-block:8px}
 .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff;flex:none}
-.av.sarah{background:var(--sarah)} .av.dave{background:var(--dave)} .av.client{background:var(--client)} .av.maria{background:#bf5af2}
+.av.sarah{background:var(--sarah)} .av.dave{background:var(--dave)} .av.client{background:var(--client)} .av.maria{background:#bf5af2} .av.tony{background:#a2845e}
 
 .start{margin-top:22px;width:100%;height:50px;border-radius:12px;background:var(--cell);font-size:17px;font-weight:600;color:#fff}
 .start:active{background:#2c2c2e}
@@ -240,11 +240,12 @@ const AGENTS = {
   sarah:  "agent_4501m4vx52p9f8rvedwq0cs1x9k1",
   dave:   "agent_6701m4vywkxqej9b1xjwe9jfqays",
   client: "agent_3501m4vywq1cfq89ywqy5s77pt0r",
-  maria:  "agent_3901m51pnd8afen8rnmz77tm458f"
+  maria:  "agent_3901m51pnd8afen8rnmz77tm458f",
+  tony:   "agent_7101m51vecqvfv79270t8w7qxvr7"
 };
-const SPEAKER = { sarah:"Sarah (office)", dave:"Dave (manager)", client:"Mark (homeowner)", maria:"Maria (homeowner)" };
-const DEFAULT_CALLER = { sarah:"Office", dave:"Dave", client:"Mark Reynolds", maria:"Maria" };
-const INITIAL = { sarah:"S", dave:"D", client:"M", maria:"M" };
+const SPEAKER = { sarah:"Sarah (office)", dave:"Dave (manager)", client:"Mark (homeowner)", maria:"Maria (homeowner)", tony:"Tony (warehouse)" };
+const DEFAULT_CALLER = { sarah:"Office", dave:"Dave", client:"Mark Reynolds", maria:"Maria", tony:"Warehouse" };
+const INITIAL = { sarah:"S", dave:"D", client:"M", maria:"M", tony:"T" };
 const AGAIN = {
   sarah:  (n)=>`${n}, it's Sarah again.`,
   dave:   (n)=>`${n}, it's Dave. Sarah filled me in. Talk to me.`,
@@ -308,16 +309,10 @@ const SCENARIOS = [
 4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
 5. If he makes a good case, find a tight slot that only works if something else goes right ("if Carlos finishes Tuesday, I can squeeze you in Wednesday morning"). Say the condition once.
 6. Confirm the slot and ask if the client can do it.` },
-  { id:"price", who:"sarah", caller:"Office", initial:"O", title:"Office · supplier price jump",
-    desc:"Material costs up — you hold the old quote",
-    first:(n)=>`Hey ${n}, heads up before you quote anything. Supplier just sent new pricing and it's up. A lot.`,
-    brief:(n)=>`# How this call goes
-1. You open: heads up, the supplier just sent new pricing and it's up a lot.
-2. If he asks, say the old quote doesn't cover the materials anymore.
-3. He'll push to keep the old price. Push back once or twice with different reasons.
-4. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
-5. If he makes a strong case, agree to fight for the old number on one condition: the client signs today. Say it once.
-6. Ask him to let you know when it's signed.` },
+  { id:"warehouse", who:"tony", caller:"Warehouse", initial:"T", title:"Tony · confirm big order",
+    desc:"Warehouse double-checks a large order you approved",
+    first:(n)=>`Hey ${n}, Tony at the warehouse. Got your order up, wanna confirm before I pull it.`,
+    brief:null },
   { id:"crew", who:"sarah", caller:"Office", initial:"O", title:"Office · crew opened up",
     desc:"Earlier start available, others want it",
     first:(n)=>`${n}, you got a sec? A job just pushed and I've got a crew opening up earlier than planned.`,
@@ -394,7 +389,7 @@ Somewhere in the call, in your own words and only once or twice, give him real c
 Then sort out where to send the paperwork. Let the conversation flow; don't follow a fixed order.`;
 }
 
-const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install.", zip:"You are calling to say you want to go ahead with the project." };
+const BRIEF_EXTRA = { manager:"The rep is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install.", zip:"You are calling to say you want to go ahead with the project." };
 SCENARIOS.unshift(
   { id:"prev_intake", who:"sarah",
     first:(n)=>`Hey ${n}, it's Sarah. Quick update on that client from this morning. It came back in the system... they didn't get approved.`,
@@ -461,14 +456,6 @@ ${LOOSE.replace("${n}", n)}` },
     brief: (n)=>`# Situation
 Next week is packed. Name a job or two in the way if he asks. He'll fight for his client. If his case is good, find a tight slot that depends on something else going right, say the condition once, and ask if the client can do it.
 ${LOOSE.replace("${n}", n)}` },
-  price: {
-    first: [
-      (n)=>`Hey, heads up before you quote. Supplier sent new pricing. It's up.`,
-      (n)=>`${n}, did you quote yet? Because material prices just jumped.`,
-      (n)=>`Ugh, okay, so the supplier just raised everything.`],
-    brief: (n)=>`# Situation
-The supplier raised prices and the old quote doesn't cover materials anymore. He'll want to hold the old price. If he makes a strong case, you'll fight for the old number if the client signs today. Ask him to tell you when it's signed.
-${LOOSE.replace("${n}", n)}` },
   crew: {
     first: [
       (n)=>`You got a sec? A job just pushed and I've got a crew free earlier.`,
@@ -491,6 +478,24 @@ ${LOOSE.replace("${n}", n)}` },
       (n)=>`Hey! Are you still with them? Because it's approved.`,
       (n)=>`Okay, good news for once. Approved.`] },
 };
+Object.assign(SARAH, {
+  manager: { first: [
+    (n)=>`${n}, Dave. Sarah said you needed me?`,
+    (n)=>`Yeah, it's Dave. What's going on, I got two minutes.`,
+    (n)=>`Dave here. I'm driving, make it quick, what do you need?`] },
+  client: { first: [
+    (n)=>`Hi, is this ${n}? It's Mark Reynolds, just checking on tomorrow.`,
+    (n)=>`Hey ${n}, Mark Reynolds. Sorry to bug you, quick question about tomorrow.`,
+    (n)=>`${n}! Hey, it's Mark. The windows guy, ha. Got a sec?`] },
+  zip: { first: [
+    (n)=>`Hey ${n}, what's going on? It's Maria.`,
+    (n)=>`Hi! Is this ${n}? It's Maria, finally calling you back.`,
+    (n)=>`${n}, hi, it's Maria. Okay, so we decided.`] },
+  warehouse: { first: [
+    (n)=>`Hey ${n}, Tony at the warehouse. Got your order up, wanna confirm before I pull it.`,
+    (n)=>`${n}? Tony, warehouse. That's a big one you sent over, just double-checking.`,
+    (n)=>`Yo, it's Tony. Quick one on your order before I load it.`] },
+});
 Object.entries(SARAH).forEach(([id, v]) => {
   const sc = SCENARIOS.find(x => x.id === id); if (!sc) return;
   sc.first = (n) => pickOne(v.first)(n);
@@ -505,7 +510,7 @@ const SHORT = {
   intake:   { t:"New application",  d:"Wants app #, address, photos" },
   denied:   { t:"Not approved",     d:"You fight to get it reviewed" },
   schedule: { t:"Calendar is full", d:"You squeeze your client in" },
-  price:    { t:"Prices went up",   d:"You hold the old quote" },
+  warehouse:{ t:"Confirm big order", d:"Tony checks a large order you approved" },
   crew:     { t:"Crew opened up",   d:"Earlier start, others want it" },
   busy:     { t:"Where are you?",   d:"Next appointment is waiting" },
   approved: { t:"Approved!",        d:"Real approved terms + she praises you" },
@@ -519,9 +524,9 @@ const SHORT = {
 const TIMES = [[3,"3 Seconds Later"],[10,"10 Seconds Later"],[30,"30 Seconds Later"],[60,"1 Minute Later"],[120,"2 Minutes Later"],
                [300,"5 Minutes Later"],[480,"8 Minutes Later"],[720,"12 Minutes Later"],[1200,"20 Minutes Later"],[1800,"30 Minutes Later"],[3600,"1 Hour Later"]];
 const RINGS = [["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
-const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client", maria:"Maria · client" };
+const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client", maria:"Maria · client", tony:"Tony · warehouse" };
 /* What logically comes after each call: Home is pre-set to it so you just press Start */
-const NEXT = { approved:"busy", intake:"denied", denied:"manager", schedule:"manager", price:"manager", crew:"busy", busy:"client", manager:"client", client:"busy" };
+const NEXT = { approved:"busy", intake:"denied", denied:"manager", schedule:"manager", warehouse:"busy", crew:"busy", busy:"client", manager:"client", client:"busy" };
 
 /* ---------- State ---------- */
 let pick = store.get("ol_pick", "intake"); if (!BY_ID[pick]) pick = "intake";
@@ -529,7 +534,7 @@ let delay = store.get("ol_delay6", 10);
 let ringKind = store.get("ol_ring", "marimba");
 let answerMode = store.get("ol_answer", "buttons");
 let callerNames = store.get("ol_callers2", {});
-let repName = store.get("ol_name2", "Dan");
+let repName = store.get("ol_name2", "Eden");
 let caseFile = store.get("ol_case7", []);
 let dayStep = store.get("ol_day7", 0);
 if (!store.get("ol_v7", false)) { pick = DAY[0]; dayStep = 0; store.set("ol_pick", pick); store.set("ol_day7", 0); store.set("ol_v7", true); }
@@ -537,7 +542,7 @@ if (caseFile.length && Date.now() - store.get("ol_case_at", 0) > 4 * 3600e3) { c
 let timer = null, conv = null, ctx = null, ring = null, ambience = null, callStart = 0, tick = null,
     taps = 0, tapTimer = null, current = null, sel = null, lastId = store.get("ol_last", null);
 
-const name = () => repName || "Dan";
+const name = () => repName || "Eden";
 const callerFor = (who) => callerNames[who] || DEFAULT_CALLER[who];
 const show = (id) => {
   ["setup","sub","armed","call","spring"].forEach(s => $(s).hidden = s !== id);
@@ -580,7 +585,7 @@ const goHome = () => $("backBtn").onclick();
 
 const PAGES = {
   who(){
-    const people = ["sarah","dave","client","maria"];
+    const people = ["sarah","dave","tony","client","maria"];
     const dayHtml = `<div class="group-title">The day · calls in order</div><div class="group">` + DAY.map((id,i) => { const s = BY_ID[id];
         return `<button class="row tall" data-day="${i}"><span class="av ${s.who}">${i+1}</span><span class="lbl">${SHORT[id].t}<span class="sub2">${PERSON[s.who]} · ${SHORT[id].d}</span></span>${dayStep === i ? TICK : ""}</button>`; }).join("") + `</div>`;
     const html = dayHtml + `<div class="group-title" style="margin-top:30px">Single calls</div>` + people.map(p => `<div class="group-title">${PERSON[p]}</div><div class="group">` +
@@ -601,13 +606,13 @@ const PAGES = {
   },
   contact(){
     const html = `<div class="group-title">Name on the call screen</div><div class="group plain">` +
-      ["sarah","dave","client","maria"].map(p => `<label class="row"><span class="lbl">${PERSON[p]}</span><input id="cn_${p}" type="text" autocomplete="off" placeholder="${esc(DEFAULT_CALLER[p])}" value="${esc(callerNames[p] || "")}"></label>`).join("") +
+      ["sarah","dave","tony","client","maria"].map(p => `<label class="row"><span class="lbl">${PERSON[p]}</span><input id="cn_${p}" type="text" autocomplete="off" placeholder="${esc(DEFAULT_CALLER[p])}" value="${esc(callerNames[p] || "")}"></label>`).join("") +
       `</div><div class="group-title">You</div><div class="group plain"><label class="row"><span class="lbl">Your name</span><input id="repName" type="text" autocomplete="off" value="${esc(repName)}"></label></div>
       <p class="group-note">The callers say your name, so keep it how you want to hear it.</p>`;
     openPage("Contact", html, null, () => {
-      ["sarah","dave","client","maria"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
+      ["sarah","dave","tony","client","maria"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
       store.set("ol_callers2", callerNames);
-      repName = $("repName").value.trim() || "Dan"; store.set("ol_name2", repName);
+      repName = $("repName").value.trim() || "Eden"; store.set("ol_name2", repName);
     });
   },
   ringtone(){
@@ -903,7 +908,7 @@ ${prev.lines.join("\n")}
 
 Continue EXACTLY from where that call left off. Do NOT repeat your opening news or anything you already said in it. If you had already started compromising or agreed on next steps, keep moving forward from there. Open with a short line that fits ("okay, so where were we", "I checked one more thing"), then carry on.`
     : dayHistory;
-  const REDIAL = { sarah:`${n}, it's Sarah. Calling you back.`, dave:`${n}, Dave again. Okay, where were we?`, client:`Hi ${n}, it's Mark again, sorry, we got cut off.`, maria:`Hey ${n}, it's Maria, I think we got cut off.` };
+  const REDIAL = { sarah:`${n}, it's Sarah. Calling you back.`, dave:`${n}, Dave again. Okay, where were we?`, client:`Hi ${n}, it's Mark again, sorry, we got cut off.`, maria:`Hey ${n}, it's Maria, I think we got cut off.`, tony:`Hey, Tony again, lost you there.` };
   const first = redial ? REDIAL[sel.who] : sel.first(n);
   current = { speaker: SPEAKER[sel.who], title: SHORT[sel.id].t, lines: [] };
   try {
