@@ -424,14 +424,6 @@ const SARAH = {
     brief: (n)=>`# Situation
 The client ${n} saw earlier today wasn't approved. You don't have much detail and there's nothing to do on it right now. Then you move on to the client he's with now: get the background from him, repeat the key bits back like you're typing, ask about anything important he skipped, ask for photos once. Don't promise anything on the new one.
 ${LOOSE.replace("${n}", n)}` },
-  budget: {
-    first: [
-      (n)=>`Hey, it's Sarah again. So I put the new one in... heads up, that area's getting really tight.`,
-      (n)=>`${n}, me again. Okay so, I entered it, but they've been closing areas without warning lately and yours is on the edge.`,
-      (n)=>`Okay, it's in. But honestly? I don't know how long that area stays open.`],
-    brief: (n)=>`# Situation
-You entered the new client. The marketing budget for areas runs out and areas get closed with no warning, and nobody, including you, knows when this one will close. Never say it's already closed or out of budget, and never give a date: you genuinely don't know. The point is: if the client wants it, getting the file moving now is safer than waiting. Ask whether it's urgent for them. If it is, you'll push it through today. Use details from his earlier call for this client.
-${LOOSE.replace("${n}", n)}` },
   intake: {
     first: [
       (n)=>`Hey, it's Sarah. You at that appointment? I need stuff to start the file.`,
