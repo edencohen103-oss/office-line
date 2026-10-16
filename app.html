@@ -5,33 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Office Line">
-<meta name="theme-color" content="#f2f2f7">
+<meta name="theme-color" content="#000000">
 <title>Office Line</title>
 <style>
 /* Home looks like an iOS Settings page: grouped list, chevrons, one Start button. */
 :root{
-  --bg:#f2f2f7; --cell:#fff; --sep:#c6c6c8; --fg:#000; --muted:#8a8a8e; --tint:#ff3b30; --check:#ff3b30;
+  --bg:#000; --cell:#1c1c1e; --sep:#38383a; --fg:#fff; --muted:#8d8d93; --tint:#ff3b30; --check:#ff3b30;
   --sarah:#34c759; --dave:#ff9f0a; --client:#0a84ff;
   --ui:-apple-system,"SF Pro Text","SF Pro Display",system-ui,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:var(--ui)}
+html,body{height:100%;min-height:100dvh;margin:0;overscroll-behavior:none;background:var(--bg);color:var(--fg);font-family:var(--ui)}
 body{overflow-x:hidden;-webkit-user-select:none;user-select:none}
 input{-webkit-user-select:text;user-select:text}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
 button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 [hidden]{display:none!important}
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;
+.screen{position:fixed;top:0;left:0;right:0;bottom:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
   padding:calc(env(safe-area-inset-top,0px) + 10px) 16px calc(env(safe-area-inset-bottom,0px) + 14px)}
 
 /* ---------- Home / pages ---------- */
 .page{background:var(--bg);overflow-y:auto}
 .topbar{height:44px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;flex:none}
 .topbar h1{margin:0;text-align:center;font-size:17px;font-weight:600}
-.round{width:34px;height:34px;border-radius:50%;background:rgba(120,120,128,.14);display:grid;place-items:center}
-.round svg{width:18px;height:18px;fill:#3c3c43}
+.round{width:34px;height:34px;border-radius:50%;background:rgba(120,120,128,.32);display:grid;place-items:center}
+.round svg{width:18px;height:18px;fill:#fff}
 .logo{display:grid;place-items:center}
 .logo span{width:34px;height:34px;border-radius:50%;background:var(--tint);display:grid;place-items:center}
 .logo svg{width:18px;height:18px;fill:#fff}
@@ -46,16 +46,16 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .row .ic svg{width:17px;height:17px;fill:#fff}
 .row .lbl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .val{color:var(--muted);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
-.row .chev{width:8px;height:13px;flex:none;fill:none;stroke:#c4c4c7;stroke-width:2}
+.row .chev{width:8px;height:13px;flex:none;fill:none;stroke:#5a5a5f;stroke-width:2}
 .row .tick{width:16px;height:16px;fill:none;stroke:var(--check);stroke-width:2.6;flex:none}
 .row input{flex:1;min-width:0;border:0;background:none;font:17px var(--ui);text-align:right;color:var(--muted);outline:none}
 .row .sub2{display:block;font-size:13px;color:var(--muted);margin-top:1px}
 .row.tall{min-height:58px;padding-block:8px}
 .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff;flex:none}
-.av.sarah{background:var(--sarah)} .av.dave{background:var(--dave)} .av.client{background:var(--client)}
+.av.sarah{background:var(--sarah)} .av.dave{background:var(--dave)} .av.client{background:var(--client)} .av.maria{background:#bf5af2}
 
-.start{margin-top:22px;width:100%;height:50px;border-radius:12px;background:var(--cell);font-size:17px;font-weight:600;color:#000}
-.start:active{background:#e5e5ea}
+.start{margin-top:22px;width:100%;height:50px;border-radius:12px;background:var(--cell);font-size:17px;font-weight:600;color:#fff}
+.start:active{background:#2c2c2e}
 .danger{color:var(--tint)}
 .err{color:var(--tint);font-size:14px;text-align:center;margin-top:12px}
 .hint{font-size:13px;color:var(--muted);text-align:center;margin:14px 8px 0;line-height:1.4}
@@ -168,7 +168,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v10</div>
+  <div class="ver">Office Line v11</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -238,15 +238,17 @@ import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@0/
 const AGENTS = {
   sarah:  "agent_4501m4vx52p9f8rvedwq0cs1x9k1",
   dave:   "agent_6701m4vywkxqej9b1xjwe9jfqays",
-  client: "agent_3501m4vywq1cfq89ywqy5s77pt0r"
+  client: "agent_3501m4vywq1cfq89ywqy5s77pt0r",
+  maria:  "agent_3901m51pnd8afen8rnmz77tm458f"
 };
-const SPEAKER = { sarah:"Sarah (office)", dave:"Dave (manager)", client:"Mark (homeowner)" };
-const DEFAULT_CALLER = { sarah:"Office", dave:"Dave", client:"Mark Reynolds" };
-const INITIAL = { sarah:"S", dave:"D", client:"M" };
+const SPEAKER = { sarah:"Sarah (office)", dave:"Dave (manager)", client:"Mark (homeowner)", maria:"Maria (homeowner)" };
+const DEFAULT_CALLER = { sarah:"Office", dave:"Dave", client:"Mark Reynolds", maria:"Maria" };
+const INITIAL = { sarah:"S", dave:"D", client:"M", maria:"M" };
 const AGAIN = {
   sarah:  (n)=>`${n}, it's Sarah again.`,
   dave:   (n)=>`${n}, it's Dave. Sarah filled me in. Talk to me.`,
-  client: (n)=>`Hi ${n}, it's Mark Reynolds again, sorry to bug you.`
+  client: (n)=>`Hi ${n}, it's Mark Reynolds again, sorry to bug you.`,
+  maria:  (n)=>`Hey ${n}, it's Maria again.`
 };
 const $ = (id) => document.getElementById(id);
 const store = {
@@ -307,6 +309,10 @@ const SCENARIOS = [
     desc:"Another customer asking when the crew comes",
     first:(n)=>`Hi, is this ${n}? It's Mark Reynolds, I'm just checking on tomorrow.`,
     brief:null },
+  { id:"zip", who:"maria", caller:"Maria", initial:"M", title:"Maria · wants to go ahead",
+    desc:"Old lead calls to sign; zip code no longer covered",
+    first:(n)=>`Hey ${n}, what's going on? It's Maria.`,
+    brief:null },
 ];
 
 const DAVE = (n) => `You are Dave, sales manager at a busy California home-improvement and construction company. ${n}, one of your field reps, is with a client and wants an extra discount or exception approved. You called him back because Sarah told you he needed you.
@@ -321,7 +327,7 @@ const CLIENT = (n) => `You are Mark Reynolds, a homeowner in California. ${n} so
 - Thank ${n} warmly, say he's been great and you've already told your neighbor about him. Wrap up when he's answered.`;
 
 
-const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install." };
+const BRIEF_EXTRA = { manager:"Dan is with a client and wants an extra discount or exception approved.", client:"You are calling about tomorrow's install.", zip:"You are calling to say you want to go ahead with the project." };
 SCENARIOS.unshift(
   { id:"prev_intake", who:"sarah",
     first:(n)=>`Hey ${n}, it's Sarah. Quick update on that client from this morning. It came back in the system... they didn't get approved.`,
@@ -343,6 +349,7 @@ const SHORT = {
   busy:     { t:"Where are you?",   d:"Next appointment is waiting" },
   manager:  { t:"Manager approval", d:"You ask Dave for the discount" },
   client:   { t:"Client checking in", d:"Mark asks about tomorrow" },
+  zip:      { t:"Maria wants to sign", d:"Her zip code isn't covered anymore" },
 };
 
 
@@ -350,7 +357,7 @@ const SHORT = {
 const TIMES = [[3,"3 Seconds Later"],[10,"10 Seconds Later"],[30,"30 Seconds Later"],[60,"1 Minute Later"],[120,"2 Minutes Later"],
                [300,"5 Minutes Later"],[480,"8 Minutes Later"],[720,"12 Minutes Later"],[1200,"20 Minutes Later"],[1800,"30 Minutes Later"],[3600,"1 Hour Later"]];
 const RINGS = [["marimba","Marimba"],["chimes","Chimes"],["classic","Classic Bell"],["none","Silent"]];
-const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client" };
+const PERSON = { sarah:"Sarah · office", dave:"Dave · manager", client:"Mark · client", maria:"Maria · client" };
 /* What logically comes after each call: Home is pre-set to it so you just press Start */
 const NEXT = { intake:"denied", denied:"manager", schedule:"manager", price:"manager", crew:"busy", busy:"client", manager:"client", client:"busy" };
 
@@ -373,8 +380,8 @@ const callerFor = (who) => callerNames[who] || DEFAULT_CALLER[who];
 const show = (id) => {
   ["setup","sub","armed","call","spring"].forEach(s => $(s).hidden = s !== id);
   const light = id === "setup" || id === "sub";
-  document.querySelector('meta[name="theme-color"]').content = light ? "#f2f2f7" : "#000000";
-  document.body.style.background = light ? "#f2f2f7" : "#000";
+  document.querySelector('meta[name="theme-color"]').content = "#000000";
+  document.documentElement.style.background = document.body.style.background = "#000";
 };
 const timeLabel = (v) => (TIMES.find(t => t[0] === v) || [0, `${v} Seconds Later`])[1];
 const inWords = (s) => s < 60 ? `${s} seconds` : s < 3600 ? `${Math.round(s/60)} minute${s >= 120 ? "s" : ""}` : "1 hour";
@@ -409,7 +416,7 @@ const goHome = () => $("backBtn").onclick();
 
 const PAGES = {
   who(){
-    const people = ["sarah","dave","client"];
+    const people = ["sarah","dave","client","maria"];
     const dayHtml = `<div class="group-title">The day · calls in order</div><div class="group">` + DAY.map((id,i) => { const s = BY_ID[id];
         return `<button class="row tall" data-day="${i}"><span class="av ${s.who}">${i+1}</span><span class="lbl">${SHORT[id].t}<span class="sub2">${PERSON[s.who]} · ${SHORT[id].d}</span></span>${dayStep === i ? TICK : ""}</button>`; }).join("") + `</div>`;
     const html = dayHtml + `<div class="group-title" style="margin-top:30px">Single calls</div>` + people.map(p => `<div class="group-title">${PERSON[p]}</div><div class="group">` +
@@ -430,11 +437,11 @@ const PAGES = {
   },
   contact(){
     const html = `<div class="group-title">Name on the call screen</div><div class="group plain">` +
-      ["sarah","dave","client"].map(p => `<label class="row"><span class="lbl">${PERSON[p]}</span><input id="cn_${p}" type="text" autocomplete="off" placeholder="${esc(DEFAULT_CALLER[p])}" value="${esc(callerNames[p] || "")}"></label>`).join("") +
+      ["sarah","dave","client","maria"].map(p => `<label class="row"><span class="lbl">${PERSON[p]}</span><input id="cn_${p}" type="text" autocomplete="off" placeholder="${esc(DEFAULT_CALLER[p])}" value="${esc(callerNames[p] || "")}"></label>`).join("") +
       `</div><div class="group-title">You</div><div class="group plain"><label class="row"><span class="lbl">Your name</span><input id="repName" type="text" autocomplete="off" value="${esc(repName)}"></label></div>
       <p class="group-note">The callers say your name, so keep it how you want to hear it.</p>`;
     openPage("Contact", html, null, () => {
-      ["sarah","dave","client"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
+      ["sarah","dave","client","maria"].forEach(p => { const v = $("cn_"+p).value.trim(); if (v) callerNames[p] = v; else delete callerNames[p]; });
       store.set("ol_callers2", callerNames);
       repName = $("repName").value.trim() || "Dan"; store.set("ol_name2", repName);
     });
@@ -644,6 +651,8 @@ $("armBtn").onclick = async () => {
   if (dayStep === 0) store.set("ol_prev_call", null);
   show("armed");
   $("armedTxt").textContent = `The phone will be called in ${inWords(delay)}. Don't lock the screen and don't return to the home screen.`;
+  const at = $("armedTxt"); at.style.transition = "none"; at.style.opacity = "1";
+  clearTimeout(window.__armedHide); window.__armedHide = setTimeout(() => { at.style.transition = "opacity .4s"; at.style.opacity = "0"; }, 2000);
   clearTimeout(timer);
   timer = setTimeout(() => incoming(pick), delay * 1000);
 };
@@ -713,7 +722,7 @@ ${prev.lines.join("\n")}
 
 Continue EXACTLY from where that call left off. Do NOT repeat your opening news or anything you already said in it. If you had already started compromising or agreed on next steps, keep moving forward from there. Open with a short line that fits ("okay, so where were we", "I checked one more thing"), then carry on.`
     : dayHistory;
-  const REDIAL = { sarah:`${n}, it's Sarah. Calling you back.`, dave:`${n}, Dave again. Okay, where were we?`, client:`Hi ${n}, it's Mark again, sorry, we got cut off.` };
+  const REDIAL = { sarah:`${n}, it's Sarah. Calling you back.`, dave:`${n}, Dave again. Okay, where were we?`, client:`Hi ${n}, it's Mark again, sorry, we got cut off.`, maria:`Hey ${n}, it's Maria, I think we got cut off.` };
   const first = redial ? REDIAL[sel.who] : sel.first(n);
   current = { speaker: SPEAKER[sel.who], title: SHORT[sel.id].t, lines: [] };
   try {
