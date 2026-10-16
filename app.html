@@ -169,7 +169,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v12</div>
+  <div class="ver">Office Line v13</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -402,12 +402,15 @@ SCENARIOS.unshift(
 6. Don't promise anything about the new client yet. Keep the line open.` },
   { id:"budget", who:"sarah",
     first:(n)=>`${n}, it's Sarah again. So I put the new one in... and there's no budget left in that area right now.`,
-    brief:(n)=>`# How this call goes
+    brief:(n)=>`# What this call is about
+It is ONLY about money: the financing program's budget for the client's area (their city / zip code). Each area gets a set amount of program funding, and that area's funding is used up for now, so this application can't be funded as is. This has NOTHING to do with crews, scheduling, installers or the calendar; never mention crews or install dates.
+
+# How it goes
 1. You open: you put the new client in, and there's no budget left in that area right now.
-2. Use the details he gave you on the last call for this client. Whatever ${n} tells you (names, addresses, amounts, what the client wants), GO ALONG WITH IT and use it. His details are always right; never correct him and never invent different ones.
-3. He'll argue. Push back a little, each time with a different, specific reason (the area's allocation is spent, others are already waiting, it resets later). If he jokes ("I don't know the word no"), laugh it off.
+2. Use the details he gave you on the last call for this client. Whatever ${n} tells you (names, addresses, amounts, what the client wants), go along with it and use it exactly.
+3. He'll argue. Push back a little, each time with a different money reason, for example: the area's funding for this round is already allocated; other applications from that same area are already in line for the next release; the program releases more funds at the start of next month; underwriting can't approve over the area cap. If he jokes ("I don't know the word no"), laugh it off.
 4. After he's argued a bit, ask him: "Is this something urgent for them?"
-5. Listen to his answer, then soften: you'll try again, resubmit it and push for it, no promises.
+5. Listen to his answer, then soften: you'll try again, flag it as urgent, and push to get it into the next release or ask for an exception; no promises.
 6. Keep the line open: ask what else he needs.` }
 );
 /* ---------- Looser, less predictable versions of Sarah's calls ----------
