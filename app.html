@@ -169,7 +169,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v14</div>
+  <div class="ver">Office Line v15</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -342,7 +342,7 @@ const SCENARIOS = [
     brief:null },
   { id:"client", who:"client", caller:"Mark Reynolds", initial:"M", title:"Client · install tomorrow",
     desc:"Another customer asking when the crew comes",
-    first:(n)=>`Hi, is this ${n}? It's Mark Reynolds, I'm just checking on tomorrow.`,
+    first:(n)=>`Hi ${n}, it's Mark Reynolds. What time's the crew coming tomorrow?`,
     brief:null },
   { id:"zip", who:"maria", caller:"Maria", initial:"M", title:"Maria · wants to go ahead",
     desc:"Old lead calls to sign; zip code no longer covered",
@@ -479,9 +479,9 @@ Object.assign(SARAH, {
     (n)=>`Yeah, it's Dave. What's going on, I got two minutes.`,
     (n)=>`Dave here. I'm driving, make it quick, what do you need?`] },
   client: { first: [
-    (n)=>`Hi, is this ${n}? It's Mark Reynolds, just checking on tomorrow.`,
-    (n)=>`Hey ${n}, Mark Reynolds. Sorry to bug you, quick question about tomorrow.`,
-    (n)=>`${n}! Hey, it's Mark. The windows guy, ha. Got a sec?`] },
+    (n)=>`Hi ${n}, it's Mark Reynolds. What time's the crew coming tomorrow?`,
+    (n)=>`Hey ${n}, Mark Reynolds, the windows. Quick one: is tomorrow still on?`,
+    (n)=>`${n}, hey, it's Mark. Do I need to move my cars out for the guys tomorrow?`] },
   zip: { first: [
     (n)=>`Hey ${n}, what's going on? It's Maria.`,
     (n)=>`Hi! Is this ${n}? It's Maria, finally calling you back.`,
@@ -998,7 +998,7 @@ $("muteBtn").onclick = () => setMute($("muteBtn").getAttribute("aria-pressed") !
 function setSpeaker(on){
   speakerOn = on;
   $("speakerBtn").setAttribute("aria-pressed", on);
-  try { conv?.setVolume?.({ volume: on ? 1 : 0.22 }); } catch(e){}
+  try { conv?.setVolume?.({ volume: on ? 0.85 : 0.22 }); } catch(e){}
   applyMic();
 }
 $("speakerBtn").onclick = () => setSpeaker($("speakerBtn").getAttribute("aria-pressed") !== "true");
