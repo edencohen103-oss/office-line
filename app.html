@@ -169,7 +169,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v15</div>
+  <div class="ver">Office Line v16</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -311,7 +311,7 @@ const SCENARIOS = [
 6. Confirm the slot and ask if the client can do it.` },
   { id:"warehouse", who:"tony", caller:"Warehouse", initial:"T", title:"Tony · confirm big order",
     desc:"Warehouse double-checks a large order you approved",
-    first:(n)=>`Hey ${n}, Tony at the warehouse. Got your order up, wanna confirm before I pull it.`,
+    first:(n)=>`Hey ${n}, Tony at the warehouse. Your order's on the truck for tomorrow, wanna confirm it first.`,
     brief:null },
   { id:"crew", who:"sarah", caller:"Office", initial:"O", title:"Office · crew opened up",
     desc:"Earlier start available, others want it",
@@ -487,9 +487,9 @@ Object.assign(SARAH, {
     (n)=>`Hi! Is this ${n}? It's Maria, finally calling you back.`,
     (n)=>`${n}, hi, it's Maria. Okay, so we decided.`] },
   warehouse: { first: [
-    (n)=>`Hey ${n}, Tony at the warehouse. Got your order up, wanna confirm before I pull it.`,
-    (n)=>`${n}? Tony, warehouse. That's a big one you sent over, just double-checking.`,
-    (n)=>`Yo, it's Tony. Quick one on your order before I load it.`] },
+    (n)=>`Hey ${n}, Tony at the warehouse. Your order's on the truck for tomorrow, wanna confirm it first.`,
+    (n)=>`${n}? Tony, warehouse. That big one's going out tomorrow, just double-checking.`,
+    (n)=>`Yo, it's Tony. Quick one on your order before I load it for tomorrow.`] },
 });
 Object.entries(SARAH).forEach(([id, v]) => {
   const sc = SCENARIOS.find(x => x.id === id); if (!sc) return;
