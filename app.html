@@ -169,7 +169,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v13</div>
+  <div class="ver">Office Line v14</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -962,7 +962,8 @@ let inCall = false, earSince = 0, awaySince = 0, earSeen = false, manualMute = f
 function setEar(on){ $("ear").hidden = !on; }
 function applyMic(){
   // On speaker, the mic is closed while she talks so she doesn't hear her own voice (echo).
-  const closed = manualMute || (speakerOn && agentTalking);
+  // Mic stays open while she talks so you can cut in, like a real call (the browser cancels her echo).
+  const closed = manualMute;
   try { conv?.setMicMuted?.(closed); } catch(e){}
 }
 function setMute(on){ manualMute = on; $("muteBtn").setAttribute("aria-pressed", on); applyMic(); }
