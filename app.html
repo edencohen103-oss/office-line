@@ -140,6 +140,9 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
 .endrow .circle{width:72px;height:72px;background:#eb4545}
 .endrow svg{width:32px;height:32px;fill:#fff}
 
+/* Full-bleed: fixed screens cover the whole display, including the home-indicator strip */
+#call,#spring,#armed{bottom:auto;height:100vh;height:100lvh;min-height:100lvh}
+#ear{height:100lvh}
 </style>
 </head>
 <body>
@@ -169,7 +172,7 @@ button:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
   <button class="start" id="armBtn">Start</button>
   <div class="err" id="err" hidden></div>
   <p class="hint" id="a2hs" hidden>For a full-screen call: Share → Add to Home Screen, then open it from there.</p>
-  <div class="ver">Office Line v16</div>
+  <div class="ver">Office Line v17</div>
 </section>
 
 <!-- PUSHED PAGE (Time, Contact, Ringtone…) -->
@@ -543,7 +546,7 @@ const show = (id) => {
   ["setup","sub","armed","call","spring"].forEach(s => $(s).hidden = s !== id);
   const light = id === "setup" || id === "sub";
   document.querySelector('meta[name="theme-color"]').content = "#000000";
-  document.documentElement.style.background = document.body.style.background = "#000";
+  document.documentElement.style.background = document.body.style.background = (id === "call" ? "#1b1b1e" : "#000");
 };
 const timeLabel = (v) => (TIMES.find(t => t[0] === v) || [0, `${v} Seconds Later`])[1];
 const inWords = (s) => s < 60 ? `${s} seconds` : s < 3600 ? `${Math.round(s/60)} minute${s >= 120 ? "s" : ""}` : "1 hour";
